@@ -99,6 +99,15 @@ Integrating Home Assistant via Esphome
 To do.
 
 
+Glossary
+--------
+
+* AHS: Auxiliary Heating System (external heater)
+* DHW: Domestic Hot Water
+* IBH: Interal Backup Heating (electric heater)
+* TBH: electric water tank heater
+
+
 Documentation
 -------------
 
