@@ -30,7 +30,7 @@ desired water temperature. Also read sensor values, such as fan speed.
 
 * It allows for fine grained control (contrary to e.g. thermostat on/off).
 * What is local stays local, no cloud involved.
-* Integrates with domotica, e.g. Home Assistant.
+* Integrates with domotica, e.g. [Home Assistant](https://www.home-assistant.io/).
 
 
 Connecting the remote controller
