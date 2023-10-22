@@ -91,6 +91,12 @@ defaults of the controller unit are:
 * parity: N
 
 
+Integrating Home Assistant via Esphome
+--------------------------------------
+
+To do.
+
+
 Documentation
 -------------
 
