@@ -2,21 +2,20 @@ Ferroli Omnia heat pump modbus interface
 ========================================
 
 Ferroli Omnia is a heat pump range produced by Midea. It is a white label
-product, also sold as:
+product, also sold under other names, including:
 
 * Ferroli Omnia 3.2 monobloc
-
 * Midea M thermal Modo
-
 * Airwell Wellea Monobloc A
-
 * Lamborghini Idola M 3.2
-
 * Artel Linea Monobloc
 
 The heat pump comes as a monobloc with an outdoor hydrolic unit and an indoor
 controller unit. The controller unit communicates with the hydrolic unit via
-a wire and optionally uses Wifi to connect with the cloud and the app.
+a wire and optionally uses Wifi to connect with the cloud and the (not so
+great) app
+([Android](https://play.google.com/store/apps/details?id=com.cacapp.omnia)
+or [Apple](https://apps.apple.com/nl/app/omnia-smart/id1532349739)).
 
 The controller also supports [Modbus](https://en.wikipedia.org/wiki/Modbus),
 a serial protocol widely used for building management. This page shows some
@@ -30,9 +29,7 @@ Modbus can be used to control the device. Turn it on or off and set the
 desired water temperature. Also read sensor values, such as fan speed.
 
 * It allows for fine grained control (contrary to e.g. thermostat on/off).
-
 * What is local stays local, no cloud involved.
-
 * Integrates with domotica, e.g. Home Assistant.
 
 
@@ -41,9 +38,15 @@ Connecting the remote controller
 
 Modbus requires three wires, usually labeled A+, B- and Gnd. Connect the wires
 to H2, H1 and E respectively. These terminals can be found in the
-controller by removing the back plate.
+controller by removing it from the mounting plate.
 
-**Note: according to the Ferroli manual the H1 and H2 should be reversed. That
+Connect as follows:
+
+* *H2* -> *A+*
+* *H1* -> *B-*
+* *E* -> *Gnd*
+
+**Note: according to the Ferroli manual, the H1 and H2 should be reversed. That
 didn't work for me!**
 
 
@@ -77,7 +80,7 @@ Assistant via USB. Alternatively, use an another device like a Raspberry Pi
 and expose modbus to Home Assistant via RTU over TCP using
 [ser2net](https://linux.die.net/man/8/ser2net).
 
-In both cases you need serial connection parameters to connect. The factory
+In both cases you need to configure the correct parameters. The factory
 defaults are:
 
 * modbus method: RTU
@@ -91,4 +94,4 @@ defaults are:
 Documentation
 -------------
 
-* [Ferroli Wired Remote Controller](https://www.ferroli.com/media/3QE47730_00_MIU_Comando%20remoto%20cablato_EN_12x12.pdf)
+* [Ferroli Wired Remote Controller manual](https://www.ferroli.com/media/3QE47730_00_MIU_Comando%20remoto%20cablato_EN_12x12.pdf)
