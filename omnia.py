@@ -150,21 +150,28 @@ REGISTERS = [
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='modbus-client')
-    parser.add_argument("--device", required=True, type=str)
-    parser.add_argument("--baudrate", help=f"baud rate", default=DEFAULT_BAUD, type=int)
-    parser.add_argument("--bytesize", help=f"bytes size (default: {DEFAULT_BYTESIZE})", default=DEFAULT_BYTESIZE, type=int, choices=BYTESIZE_CHOICES)
-    parser.add_argument("--stopbits", help=f"stop bits (default: {DEFAULT_STOPBITS})", default=DEFAULT_STOPBITS, type=int)
-    parser.add_argument("--parity", help=f"parity (default: {DEFAULT_PARITY})", default=DEFAULT_PARITY, choices=PARITY_CHOICES)
-    parser.add_argument("--unit", help=f"slave unit address", default=DEFAULT_SLAVE, type=int)
-    parser.add_argument("--read-input", metavar="ADDRESS", help=f"read input register", type=int)
-    parser.add_argument("--read-holding", metavar="ADDRESS", help=f"read holding register", type=int)
-    parser.add_argument("--write-holding", metavar="X", nargs=2, help=f"write holding register", type=int)
-    parser.add_argument("--read-info", action='store_true')
-    parser.add_argument("--power", help='turn power on or off', action=argparse.BooleanOptionalAction)
-    parser.add_argument("--silent-mode", help='silent mode on or off', action=argparse.BooleanOptionalAction)
-    parser.add_argument("--eco-mode", help='eco mode on or off', action=argparse.BooleanOptionalAction)
-    parser.add_argument("--set-water-temp", metavar="TEMP", type=int)
-    parser.add_argument("--mode", choices=["auto", "cool", "heat"])
+    
+    modbus_args = parser.add_argument_group("connection arguments")
+    modbus_args.add_argument("--device", required=True, type=str)
+    modbus_args.add_argument("--baudrate", help=f"baud rate (default: {DEFAULT_BAUD})", default=DEFAULT_BAUD, type=int)
+    modbus_args.add_argument("--bytesize", help=f"bytes size (default: {DEFAULT_BYTESIZE})", default=DEFAULT_BYTESIZE, type=int, choices=BYTESIZE_CHOICES)
+    modbus_args.add_argument("--stopbits", help=f"stop bits (default: {DEFAULT_STOPBITS})", default=DEFAULT_STOPBITS, type=int)
+    modbus_args.add_argument("--parity", help=f"parity (default: {DEFAULT_PARITY})", default=DEFAULT_PARITY, choices=PARITY_CHOICES)
+    modbus_args.add_argument("--slave", help=f"slave unit address (default: {DEFAULT_SLAVE})", default=DEFAULT_SLAVE, type=int)
+
+    modbus_actions = parser.add_argument_group("modbus actions")
+    modbus_actions.add_argument("--read-input", metavar="ADDRESS", help=f"read input register at ADDRESS", type=int)
+    modbus_actions.add_argument("--read-holding", metavar="ADDRESS", help=f"read holding register at ADDRESS", type=int)
+    modbus_actions.add_argument("--write-holding", metavar=("ADDRESS", "VALUE"), nargs=2, help=f"write VALUE to holding register ADDRESS", type=int)
+
+    omnia_args = parser.add_argument_group("omnia actions")
+    omnia_args.add_argument("--read-info", action='store_true', help="read various info from the device")
+    omnia_args.add_argument("--power", help='turn power on or off', action=argparse.BooleanOptionalAction)
+    omnia_args.add_argument("--silent-mode", help='silent mode on or off', action=argparse.BooleanOptionalAction)
+    omnia_args.add_argument("--eco-mode", help='eco mode on or off', action=argparse.BooleanOptionalAction)
+    omnia_args.add_argument("--set-water-temp", metavar="TEMP", type=int, help="set desired outlet water temperature")
+    omnia_args.add_argument("--mode", choices=["auto", "cool", "heat"])
+
     args = parser.parse_args()
 
     client = ModbusClient(port=args.device, baudrate=args.baudrate, bytesize=args.bytesize, parity=args.parity, stopbits=args.stopbits, timeout=1, retries=1)

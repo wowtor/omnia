@@ -67,7 +67,7 @@ Use `omnia.py` to control the heat pump or read info from the device.
 ./omnia.py --device=/dev/ttyUSB0 --read-info
 ```
 
-Have fun!
+The modbus register addresses are listed in the controller manual. Have fun!
 
 
 Integrating Home Assistant using the Modbus integration

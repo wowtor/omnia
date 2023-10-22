@@ -26,9 +26,12 @@ if __name__ == "__main__":
     parser.add_argument("--stopbits", help=f"stop bits (default: {DEFAULT_STOPBITS})", default=DEFAULT_STOPBITS, type=int)
     parser.add_argument("--parity", help=f"parity (default: {DEFAULT_PARITY})", default=DEFAULT_PARITY, choices=PARITY_CHOICES)
     parser.add_argument("--unit", help=f"slave unit address", required=True, type=int)
-    parser.add_argument("--read-input", metavar="ADDRESS", help=f"read input register", type=int)
-    parser.add_argument("--read-holding", metavar="ADDRESS", help=f"read holding register", type=int)
-    parser.add_argument("--write-holding", metavar="X", nargs=2, help=f"write holding register", type=int)
+
+    modbus_actions = parser.add_argument_group("modbus actions")
+    modbus_actions.add_argument("--read-input", metavar="ADDRESS", help=f"read input register at ADDRESS", type=int)
+    modbus_actions.add_argument("--read-holding", metavar="ADDRESS", help=f"read holding register at ADDRESS", type=int)
+    modbus_actions.add_argument("--write-holding", metavar=("ADDRESS", "VALUE"), nargs=2, help=f"write VALUE to holding register ADDRESS", type=int)
+
     args = parser.parse_args()
 
     client = ModbusClient(port=args.device, baudrate=args.baudrate, bytesize=args.bytesize, parity=args.parity, stopbits=args.stopbits, timeout=1, retries=1)
