@@ -13,9 +13,9 @@ product, also sold under other names, including:
 The heat pump comes as a monobloc with an outdoor hydrolic unit and an indoor
 controller unit. The controller unit communicates with the hydrolic unit via
 a wire and optionally uses Wifi to connect with the cloud and the (not so
-great) app
-([Android](https://play.google.com/store/apps/details?id=com.cacapp.omnia)
-or [Apple](https://apps.apple.com/nl/app/omnia-smart/id1532349739)).
+great)
+[Android](https://play.google.com/store/apps/details?id=com.cacapp.omnia)
+or [Apple](https://apps.apple.com/nl/app/omnia-smart/id1532349739) app.
 
 The controller also supports [Modbus](https://en.wikipedia.org/wiki/Modbus),
 a serial protocol widely used for building management. This page shows some
@@ -42,9 +42,9 @@ controller by removing it from the mounting plate.
 
 Connect as follows:
 
-* *H2* -> *A+*
-* *H1* -> *B-*
-* *E* -> *Gnd*
+* **H2** -> **A+**
+* **H1** -> **B-**
+* **E** -> **Gnd**
 
 **Note: according to the Ferroli manual, the H1 and H2 should be reversed. That
 didn't work for me!**
@@ -81,7 +81,7 @@ and expose modbus to Home Assistant via RTU over TCP using
 [ser2net](https://linux.die.net/man/8/ser2net).
 
 In both cases you need to configure the correct parameters. The factory
-defaults are:
+defaults of the controller unit are:
 
 * modbus method: RTU
 * modbus slave: 1
@@ -94,4 +94,4 @@ defaults are:
 Documentation
 -------------
 
-* [Ferroli Wired Remote Controller manual](https://www.ferroli.com/media/3QE47730_00_MIU_Comando%20remoto%20cablato_EN_12x12.pdf)
+* Ferroli Wired Remote Controller manual ([PDF](https://www.ferroli.com/media/3QE47730_00_MIU_Comando%20remoto%20cablato_EN_12x12.pdf))
