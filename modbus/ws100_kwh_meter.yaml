@@ -1,0 +1,91 @@
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} voltage"
+    id: "${prefix}_voltage"
+    register_type: read
+    address: 0x100
+    value_type: S_DWORD
+    device_class: VOLTAGE
+    unit_of_measurement: "V"
+    filters:
+      - multiply: .001
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} current"
+    id: "${prefix}_current"
+    register_type: read
+    address: 0x102
+    value_type: S_DWORD
+    device_class: CURRENT
+    unit_of_measurement: "mA"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power"
+    id: "${prefix}_power"
+    register_type: read
+    address: 0x104
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} apparent power"
+    id: "${prefix}_apparent_power"
+    register_type: read
+    address: 0x106
+    value_type: S_DWORD
+    device_class: APPARENT_POWER
+    unit_of_measurement: "VA"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} frequency"
+    id: "${prefix}_frequency"
+    register_type: read
+    address: 0x10a
+    value_type: U_WORD
+    device_class: FREQUENCY
+    unit_of_measurement: "Hz"
+    filters:
+      - multiply: .1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power factor"
+    id: "${prefix}_power_factor"
+    register_type: read
+    address: 0x10b
+    value_type: S_WORD
+    device_class: POWER_FACTOR
+    unit_of_measurement: "%"
+    filters:
+      - multiply: .1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward energy"
+    id: "${prefix}_forward_energy"
+    register_type: read
+    address: 0x10e
+    value_type: U_DWORD
+    device_class: ENERGY
+    unit_of_measurement: Wh
+    state_class: total_increasing
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse energy"
+    id: "${prefix}_reverse_energy"
+    register_type: read
+    address: 0x118
+    value_type: U_DWORD
+    device_class: ENERGY
+    unit_of_measurement: Wh
+    state_class: total_increasing
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} energy"
+    id: "${prefix}_energy"
+    register_type: read
+    address: 0x122
+    value_type: S_DWORD
+    device_class: ENERGY
+    unit_of_measurement: Wh
+    state_class: total

@@ -1,0 +1,60 @@
+substitutions:
+  name: omnia_adapter
+  friendly_name: Omnia Adapter
+
+modbus_controller:
+  - id: omnia_modbus
+    address: 1
+    setup_priority: -10
+  - id: omnia_meter_modbus
+    address: 47
+    setup_priority: -10
+  - id: pv_meter_modbus
+    address: 48
+    setup_priority: -10
+
+packages:
+  network: !include common/ethernet.yaml
+  #network: !include common/wifi.yaml
+  omnia: !include
+    file: modbus/omnia.yaml
+    vars:
+      prefix: omnia
+      friendly_prefix: Omnia
+  omnia_kwh_meter: !include
+    file: modbus/ws100_kwh_meter.yaml
+    vars:
+      prefix: omnia_meter
+      friendly_prefix: Omnia Meter
+  pv_kwh_meter: !include
+    file: modbus/ws100_kwh_meter.yaml
+    vars:
+      prefix: pv_meter
+      friendly_prefix: PV Meter
+
+esphome:
+  name: $name
+
+esp32:
+  board: esp-wrover-kit
+  framework:
+    type: arduino
+
+uart:
+  tx_pin: 14
+  rx_pin: 15
+  baud_rate: 9600
+  stop_bits: 1
+  parity: NONE
+
+modbus:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  password: ""

@@ -1,0 +1,120 @@
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} fan speed"
+    id: "${prefix}_fan_speed"
+    icon: "mdi:wind-power"
+    register_type: holding
+    address: 102
+    unit_of_measurement: "r/min"
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} water inlet temperature"
+    id: "${prefix}_water_inlet_temperature"
+    register_type: holding
+    address: 104
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer-water"
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} Water outlet temperature"
+    id: "${prefix}_water_outlet_temperature"
+    register_type: holding
+    address: 105
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer-water"
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} ambient temperature"
+    id: "${prefix}_ambient_temperature"
+    register_type: holding
+    address: 107
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} water flow"
+    id: "${prefix}_water_flow"
+    register_type: holding
+    address: 138
+    unit_of_measurement: "m3/h"
+    icon: "mdi:pump"
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power output"
+    id: "${prefix}_power_output"
+    register_type: holding
+    address: 140
+    device_class: POWER
+    unit_of_measurement: "kW"
+    value_type: U_WORD
+    filters:
+      - multiply: .01
+
+select:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} function"
+    id: "${prefix}_function"
+    icon: "mdi:heat-pump"
+    address: 1
+    value_type: U_WORD
+    optionsmap:
+      auto: 1
+      cool: 2
+      heat: 3
+
+switch:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} on/off"
+    id: "${prefix}_enable"
+    icon: "mdi:power-standby"
+    register_type: holding
+    address: 0
+    bitmask: 2
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} eco mode"
+    id: "${prefix}_eco_mode"
+    icon: "mdi:sprout"
+    register_type: holding
+    address: 5
+    bitmask: 0x400
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} silent mode"
+    id: "${prefix}_silent_mode"
+    icon: "mdi:home-sound-out"
+    register_type: holding
+    address: 5
+    bitmask: 0x40
+
+number:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} water temperature setting"
+    id: "${prefix}_water_temperature_setting"
+    icon: "mdi:thermometer-water"
+    address: 11
+    value_type: U_WORD
+    min_value: 35
+    max_value: 55
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power limit"
+    id: "${prefix}_power_limit"
+    icon: "mdi:car-speed-limiter"
+    address: 269
+    value_type: U_WORD
+    min_value: 0
+    max_value: 8
+    step: 1
