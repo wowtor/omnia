@@ -175,7 +175,9 @@ def add_arguments(parser):
     omnia_args.add_argument("--set-power-limit", metavar="[0-8]", help="limit input power (use 0 for no limit)", type=int)
 
 
-def run_actions(args):
+def run_actions(client, args):
+    omnia = Omnia(client, args.slave)
+
     if args.power is not None:
         omnia.set_zone1_power(args.power)
 

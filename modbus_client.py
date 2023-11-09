@@ -26,7 +26,7 @@ DEFAULT_SLAVE = 1
 def add_modbus_arguments(parser, default_baud=DEFAULT_BAUD, default_bytesize=DEFAULT_BYTESIZE, default_stopbits=DEFAULT_STOPBITS, default_parity=DEFAULT_PARITY, default_slave=DEFAULT_SLAVE):
     modbus_args = parser.add_argument_group("modbus and serial settings")
     modbus_args.add_argument("--device", metavar="DEV", required=True, type=str, help="connect to device")
-    modbus_args.add_argument("--baudrate", help=f"baud rate (default: {default_baud})", default=default_baud, type=int, required=True)
+    modbus_args.add_argument("--baudrate", help=f"baud rate (default: {default_baud})", default=default_baud, type=int)
     modbus_args.add_argument("--bytesize", help=f"bytes size (default: {default_bytesize})", default=default_bytesize, type=int, choices=BYTESIZE_CHOICES)
     modbus_args.add_argument("--stopbits", help=f"stop bits (default: {default_stopbits})", default=default_stopbits, type=int, choices=STOPBITS_CHOICES)
     modbus_args.add_argument("--parity", help=f"parity (default: {default_parity})", default=default_parity, choices=PARITY_CHOICES)
@@ -83,8 +83,8 @@ def run(appname, add_arguments: Callable = None, run_actions: Callable = None):
             else:
                 print(r.registers)
 
-        if func is not None:
-            func(args)
+        if run_actions is not None:
+            run_actions(client, args)
 
     finally:
         client.close()
