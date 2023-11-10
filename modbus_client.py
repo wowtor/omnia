@@ -57,7 +57,7 @@ def add_modbus_arguments(parser, default_baud=DEFAULT_BAUD, default_bytesize=DEF
     modbus_actions.add_argument("--read-input", metavar="A", help=f"read input register at address A", type=parse_int)
     modbus_actions.add_argument("--read-holding", metavar="A", help=f"read holding register at address A", type=parse_int)
     modbus_actions.add_argument("--write-holding", metavar=("A", "V"), nargs=2, help=f"write value V to holding register A", type=parse_int)
-    modbus_actions.add_argument("--register-type", metavar="TYPE", help=f"register type", choices=[r.name for r in REGISTER_TYPES], default=REGISTER_TYPE_S_WORD)
+    modbus_actions.add_argument("--register-type", metavar="TYPE", help=f"register type", choices=[r.name for r in REGISTER_TYPES], default=REGISTER_TYPE_S_WORD.name)
 
 
 def run(appname, add_arguments: Callable = None, run_actions: Callable = None):

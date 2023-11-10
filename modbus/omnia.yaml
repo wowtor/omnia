@@ -13,6 +13,16 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} climate curve set"
+    id: "${prefix}_climate_curve_set"
+    register_type: holding
+    address: 6
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    bitmask: 0xff
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} fan speed"
     id: "${prefix}_fan_speed"
     icon: "mdi:wind-power"
@@ -331,30 +341,30 @@ switch:
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} climate curve active"
-    id: "${prefix}_climate_curve_active"
+    name: "${friendly_prefix} climate curve enabled"
+    id: "${prefix}_climate_curve_enabled"
     icon: "mdi:snowflake-thermometer"
     register_type: holding
     address: 5
     bitmask: 0x1000
 
 number:
-#  - platform: modbus_controller
-#    modbus_controller_id: "${prefix}_modbus"
-#    name: "${friendly_prefix} climate curve"
-#    id: "${prefix}_climate_curve"
-#    icon: "mdi:snowflake-thermometer"
-#    address: 6
-#    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} climate curve"
+    id: "${prefix}_climate_curve"
+    icon: "mdi:snowflake-thermometer"
+    address: 6
+    value_type: U_WORD
 #    min_value: 1
-#    max_value: 265
+#    max_value: 2313
 #    step: 1
-#    lambda: "return int(x) & 0xff;"
-#    write_lambda: |-
-#      uint16_t modbus_value = int(x) | 0x100;
-#      ESP_LOGD("main","sending modbus value: %d", modbus_value);
-#      payload.push_back(modbus_value);
-#      return x;
+    lambda: "return int(x) & 0xff;"
+    write_lambda: |-
+      uint16_t modbus_value = int(x) | 0x100;
+      ESP_LOGD("main","sending modbus value: %d", modbus_value);
+      payload.push_back(modbus_value);
+      return x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} water temperature setting"
@@ -365,6 +375,18 @@ number:
     address: 11
     value_type: U_WORD
     min_value: 35
+    max_value: 55
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} water temperature setting zone 2"
+    id: "${prefix}_water_temperature_setting_zone2"
+    icon: "mdi:thermometer-water"
+    device_class: TEMPERATURE
+    entity_category: CONFIG
+    address: 12
+    value_type: U_WORD
+    min_value: 25
     max_value: 55
     step: 1
   - platform: modbus_controller
@@ -385,6 +407,7 @@ text_sensor:
     id: "${prefix}_fault"
     register_type: holding
     address: 124
+    entity_category: DIAGNOSTIC
     lambda: !lambda |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
