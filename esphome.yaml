@@ -6,6 +6,12 @@ modbus_controller:
   - id: omnia_modbus
     address: 1
     setup_priority: -10
+#  - id: kookplaat_modbus
+#    address: 42
+#    setup_priority: -10
+#  - id: wasmachine_modbus
+#    address: 43
+#    setup_priority: -10
   - id: omnia_meter_modbus
     address: 47
     setup_priority: -10
@@ -26,6 +32,16 @@ packages:
     vars:
       prefix: omnia_meter
       friendly_prefix: Omnia Meter
+#  kookplaat_meter: !include
+#    file: modbus/sdm120.yaml
+#    vars:
+#      prefix: kookplaat
+#      friendly_prefix: Kookplaat
+#  wasmachine: !include
+#    file: modbus/sdm120.yaml
+#    vars:
+#      prefix: wasmachine
+#      friendly_prefix: Wasmachine
   pv_kwh_meter: !include
     file: modbus/ws100_kwh_meter.yaml
     vars:
