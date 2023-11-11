@@ -1,8 +1,8 @@
 sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} water temperature setting (duplicate)"
-    id: "${prefix}_water_temperature_setting_duplicate"
+    name: "${friendly_prefix} water temperature setpoint (duplicate)"
+    id: "${prefix}_water_temperature_setpoint_duplicate"
     register_type: holding
     address: 2
     unit_of_measurement: "°C"
@@ -263,7 +263,7 @@ sensor:
       - multiply: .01
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} temperature setting cooling upper limit"
+    name: "${friendly_prefix} cooling setpoint upper limit"
     id: "${prefix}_temperature_setting_cooling_upper_limit"
     register_type: holding
     address: 201
@@ -275,7 +275,7 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} temperature setting cooling lower limit"
+    name: "${friendly_prefix} cooling setpoint lower limit"
     id: "${prefix}_temperature_setting_cooling_lower_limit"
     register_type: holding
     address: 202
@@ -287,7 +287,7 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} temperature setting heating upper limit"
+    name: "${friendly_prefix} heating setpoint upper limit"
     id: "${prefix}_temperature_setting_heating_upper_limit"
     register_type: holding
     address: 203
@@ -299,7 +299,7 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} temperature setting heating lower limit"
+    name: "${friendly_prefix} heating setpoint lower limit"
     id: "${prefix}_temperature_setting_heating_lower_limit"
     register_type: holding
     address: 204
@@ -363,8 +363,8 @@ switch:
 number:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} water temperature setting"
-    id: "${prefix}_water_temperature_setting"
+    name: "${friendly_prefix} water temperature setpoint"
+    id: "${prefix}_water_temperature_setpoint"
     icon: "mdi:thermometer-water"
     device_class: TEMPERATURE
     entity_category: CONFIG
@@ -441,6 +441,7 @@ text_sensor:
     register_type: holding
     address: 124
     entity_category: DIAGNOSTIC
+    icon: mdi:alert
     lambda: !lambda |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
