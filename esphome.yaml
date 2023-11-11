@@ -6,6 +6,9 @@ modbus_controller:
   - id: omnia_modbus
     address: 1
     setup_priority: -10
+#  - id: flair_modbus
+#    address: 20
+#    setup_priority: -10
 #  - id: kookplaat_modbus
 #    address: 42
 #    setup_priority: -10
@@ -32,6 +35,11 @@ packages:
     vars:
       prefix: omnia_meter
       friendly_prefix: Omnia Meter
+#  flair_meter: !include
+#    file: modbus/flair400.yaml
+#    vars:
+#      prefix: flair
+#      friendly_prefix: Ventilation
 #  kookplaat_meter: !include
 #    file: modbus/sdm120.yaml
 #    vars:
