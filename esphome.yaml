@@ -24,7 +24,8 @@ modbus_controller:
 
 packages:
   network: !include common/ethernet.yaml
-  #network: !include common/wifi.yaml
+  #network: !include common/wifi-configured.yaml
+  #network: !include common/wifi-unconfigured.yaml
   omnia: !include
     file: modbus/omnia.yaml
     vars:
@@ -58,6 +59,7 @@ packages:
 
 esphome:
   name: $name
+  #name_add_mac_suffix: true
 
 esp32:
   board: esp-wrover-kit
