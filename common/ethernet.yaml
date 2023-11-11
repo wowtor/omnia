@@ -5,3 +5,8 @@ ethernet:
   clk_mode: GPIO0_IN
   phy_addr: 1
   power_pin: GPIO16
+
+text_sensor:
+  - platform: ethernet_info
+    ip_address:
+      name: "${friendly_name} IP Address"
