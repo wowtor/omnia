@@ -251,7 +251,7 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} power output"
+    name: "${friendly_prefix} output power"
     id: "${prefix}_power_output"
     register_type: holding
     address: 140
@@ -447,7 +447,7 @@ text_sensor:
       ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
       std::string mode_str;
       switch (int_mode) {
-        case 0:  mode_str = "Okay"; break;
+        case 0:  mode_str = "Good"; break;
         case 1:  mode_str = "E0: Water flow fault (E8 displayed 3 times)"; break;
         case 2:  mode_str = "E1: Phase loss or neutral wire and live wire are connected"; break;
         case 3:  mode_str = "E2: Communication fault between controller and hydraulic"; break;
