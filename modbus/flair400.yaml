@@ -154,6 +154,26 @@ text_sensor:
     skip_updates: 720
     disabled_by_default: true
     icon: "mdi:qrcode"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} status"
+    id: "${prefix}_status"
+    register_type: read
+    address: 4800
+    entity_category: DIAGNOSTIC
+    icon: mdi:alert
+    lambda: !lambda |-
+      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
+      ESP_LOGD("main","Found device status int : %d", int_mode);
+      std::string mode_str;
+      switch (int_mode) {
+        case 0:  mode_str = "good"; break;
+        case 1:  mode_str = "warning"; break;
+        case 2:  mode_str = "non blocking error"; break;
+        case 3:  mode_str = "blocking error"; break;
+        default: mode_str = to_string(int_mode); break;
+      }
+      return mode_str;
 
 switch:
   - platform: modbus_controller

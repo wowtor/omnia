@@ -444,10 +444,10 @@ text_sensor:
     icon: mdi:alert
     lambda: !lambda |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
-      ESP_LOGD("main","Parsed operation mode int : %d", int_mode);
+      ESP_LOGD("main","Found device status int : %d", int_mode);
       std::string mode_str;
       switch (int_mode) {
-        case 0:  mode_str = "Good"; break;
+        case 0:  mode_str = "good"; break;
         case 1:  mode_str = "E0: Water flow fault (E8 displayed 3 times)"; break;
         case 2:  mode_str = "E1: Phase loss or neutral wire and live wire are connected"; break;
         case 3:  mode_str = "E2: Communication fault between controller and hydraulic"; break;
