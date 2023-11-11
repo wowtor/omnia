@@ -96,7 +96,31 @@ defaults of the controller unit are:
 Integrating Home Assistant via Esphome
 --------------------------------------
 
-To do.
+See the `modbus/omnia.yaml` file for esphome configuration.
+
+
+Operating the Omnia heatpump
+----------------------------
+
+Some observations:
+
+- eco mode seems to disable modulation and ignore water temperature setpoint
+  (this may be specific to my setup);
+
+- most of the settings can't be changed while the heat pump is active, or it
+  will turn itself off;
+
+- input power limitation: 0 = no limit (per user manual), other values are
+  unclear;
+
+
+Glossary
+--------
+
+* AHS: Auxiliary Heating System (external heater)
+* DHW: Domestic Hot Water
+* IBH: Interal Backup Heating (electric heater)
+* TBH: electric water tank heater
 
 
 Documentation

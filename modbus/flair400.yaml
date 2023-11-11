@@ -1,0 +1,231 @@
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} supply pressure"
+    id: "${prefix}_supply_pressure"
+    register_type: read
+    address: 4023
+    value_type: S_WORD
+    device_class: PRESSURE
+    unit_of_measurement: kPa
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} exhaust pressure"
+    id: "${prefix}_exhaust_pressure"
+    register_type: read
+    address: 4024
+    value_type: S_WORD
+    device_class: PRESSURE
+    unit_of_measurement: kPa
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} supply flow"
+    id: "${prefix}_supply_flow"
+    register_type: read
+    address: 4032
+    value_type: U_WORD
+    unit_of_measurement: "m3/h"
+    entity_category: DIAGNOSTIC
+    icon: "mdi:weather-windy"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} supply fan"
+    id: "${prefix}_supply_fan"
+    register_type: read
+    address: 4034
+    value_type: U_WORD
+    unit_of_measurement: "rpm"
+    entity_category: DIAGNOSTIC
+    icon: "mdi:wind-power"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} supply temperature"
+    id: "${prefix}_supply_temperature"
+    register_type: read
+    address: 4036
+    value_type: S_WORD
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: DIAGNOSTIC
+    filters:
+      - multiply: .1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} supply humidity"
+    id: "${prefix}_supply_humidity"
+    register_type: read
+    address: 4037
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: DIAGNOSTIC
+    device_class: HUMIDITY
+    filters:
+      - multiply: .1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} exhaust flow"
+    id: "${prefix}_exhaust_flow"
+    register_type: read
+    address: 4042
+    value_type: U_WORD
+    unit_of_measurement: "m3/h"
+    entity_category: DIAGNOSTIC
+    icon: "mdi:weather-windy"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} exhaust fan"
+    id: "${prefix}_exhaust_fan"
+    register_type: read
+    address: 4044
+    value_type: U_WORD
+    unit_of_measurement: "rpm"
+    entity_category: DIAGNOSTIC
+    icon: "mdi:wind-power"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} exhaust temperature"
+    id: "${prefix}_exhaust_temperature"
+    register_type: read
+    address: 4046
+    value_type: S_WORD
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: DIAGNOSTIC
+    filters:
+      - multiply: .1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} exhaust humidity"
+    id: "${prefix}_exhaust_humidity"
+    register_type: read
+    address: 4047
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: DIAGNOSTIC
+    device_class: HUMIDITY
+    filters:
+      - multiply: .1
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} software version"
+    id: "${prefix}_software_version"
+    register_type: read
+    address: 4000
+    register_count: 3
+    response_size: 24
+    raw_encode: COMMA
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+    icon: "mdi:qrcode"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} hardware version"
+    id: "${prefix}_hardware_version"
+    register_type: read
+    address: 4003
+    register_count: 1
+    response_size: 8
+    raw_encode: COMMA
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+    icon: "mdi:qrcode"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} serial number"
+    id: "${prefix}_serial_no"
+    register_type: read
+    address: 4013
+    register_count: 6
+    response_size: 48
+    raw_encode: NONE
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+    icon: "mdi:qrcode"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} status"
+    id: "${prefix}_status"
+    register_type: read
+    address: 4800
+    entity_category: DIAGNOSTIC
+    icon: mdi:alert
+    lambda: !lambda |-
+      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
+      ESP_LOGD("main","Found device status int : %d", int_mode);
+      std::string mode_str;
+      switch (int_mode) {
+        case 0:  mode_str = "good"; break;
+        case 1:  mode_str = "warning"; break;
+        case 2:  mode_str = "non blocking error"; break;
+        case 3:  mode_str = "blocking error"; break;
+        default: mode_str = to_string(int_mode); break;
+      }
+      return mode_str;
+
+switch:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} imbalance allowed"
+    id: "${prefix}_imbalance_allowed"
+    register_type: holding
+    address: 6033
+    entity_category: CONFIG
+    icon: "mdi:scale-unbalanced"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} on/off"
+    id: "${prefix}_on_off"
+    register_type: holding
+    address: 8003
+    inverted: true
+    icon: "mdi:power-standby"
+
+select:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow type"
+    id: "${prefix}_flow_type"
+    address: 6030
+    value_type: U_WORD
+    optionsmap:
+      "Constant pulse width modulation": 1
+      "Constant flow": 2
+      "Constant mass flow": 3
+    entity_category: CONFIG
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} bypass"
+    id: "${prefix}_bypass"
+    address: 6100
+    value_type: U_WORD
+    optionsmap:
+      "auto": 0
+      "closed": 1
+      "open": 2
+    entity_category: CONFIG
+    icon: "mdi:transit-skip"
+
+number:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow setpoint"
+    id: "${prefix}_flow_setpoint"
+    address: 8002
+    value_type: U_WORD
+    min_value: 0
+    max_value: 400
+    step: 1
+    icon: "mdi:weather-windy"

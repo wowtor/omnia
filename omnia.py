@@ -2,10 +2,13 @@
 
 import argparse
 from collections import namedtuple
+import os
 import sys
 import time
 
 from pymodbus.client import ModbusSerialClient as ModbusClient
+
+from modbus_client import run
 
 
 DEFAULT_METHOD = "rtu"
@@ -93,6 +96,13 @@ class Omnia:
     def set_zone1_water_temperature(self, temperature: int):
         self.write_register(11, temperature)
 
+    def set_power_limit(self, value: int):
+        if value == "none":
+            value = 0
+
+        assert 0 <= value <= 8, "value outside range"
+        self.write_register(269, value)
+
 
 ModbusValue = namedtuple("ModbusValue", ["address", "desc", "unit", "func"])
 
@@ -124,10 +134,15 @@ REGISTERS = [
     ModbusValue(108, "compressor discharge temperature", "C", int),
     ModbusValue(109, "compressor suction temperature", "C", int),
     #ModbusValue(110, "water outlet temperature behind auxiliary heater", "C", int),
+    ModbusValue(112, "refrigerant liquid side temperature", "C", int),
+    ModbusValue(113, "refrigerant gas side temperature", "C", int),
+    ModbusValue(116, "high pressure value", "kPa", int),
+    ModbusValue(117, "low pressure value", "kPa", int),
     ModbusValue(118, "operating current", "A", int),
     ModbusValue(119, "operating voltage", "V", int),
     ModbusValue(122, "operating time", "h", int),
     ModbusValue(123, "unit capacity", None, int),
+    ModbusValue(124, "error code", None, int),
     ModbusValue(130, "controller software version", None, int),
     ModbusValue(131, "controller hardware version", None, int),
     ModbusValue(133, "DC bus current", "A", int),
@@ -145,25 +160,11 @@ REGISTERS = [
     #ModbusValue(204, "Zone 2 heating lower limit", "C", lambda x: x >> 8),
     ModbusValue(210, "enable heating", None, lambda x: bool((x >> 7) & 1)),
     ModbusValue(211, "pipe length >10m", None, lambda x: bool((x >> 11) & 1)),
+    ModbusValue(269, "power input limit", None, lambda x: "none" if x==0 else x),
 ]
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='modbus-client')
-    
-    modbus_args = parser.add_argument_group("connection arguments")
-    modbus_args.add_argument("--device", required=True, type=str)
-    modbus_args.add_argument("--baudrate", help=f"baud rate (default: {DEFAULT_BAUD})", default=DEFAULT_BAUD, type=int)
-    modbus_args.add_argument("--bytesize", help=f"bytes size (default: {DEFAULT_BYTESIZE})", default=DEFAULT_BYTESIZE, type=int, choices=BYTESIZE_CHOICES)
-    modbus_args.add_argument("--stopbits", help=f"stop bits (default: {DEFAULT_STOPBITS})", default=DEFAULT_STOPBITS, type=int)
-    modbus_args.add_argument("--parity", help=f"parity (default: {DEFAULT_PARITY})", default=DEFAULT_PARITY, choices=PARITY_CHOICES)
-    modbus_args.add_argument("--slave", help=f"slave unit address (default: {DEFAULT_SLAVE})", default=DEFAULT_SLAVE, type=int)
-
-    modbus_actions = parser.add_argument_group("modbus actions")
-    modbus_actions.add_argument("--read-input", metavar="ADDRESS", help=f"read input register at ADDRESS", type=int)
-    modbus_actions.add_argument("--read-holding", metavar="ADDRESS", help=f"read holding register at ADDRESS", type=int)
-    modbus_actions.add_argument("--write-holding", metavar=("ADDRESS", "VALUE"), nargs=2, help=f"write VALUE to holding register ADDRESS", type=int)
-
+def add_arguments(parser):
     omnia_args = parser.add_argument_group("omnia actions")
     omnia_args.add_argument("--read-info", action='store_true', help="read various info from the device")
     omnia_args.add_argument("--power", help='turn power on or off', action=argparse.BooleanOptionalAction)
@@ -171,42 +172,39 @@ if __name__ == "__main__":
     omnia_args.add_argument("--eco-mode", help='eco mode on or off', action=argparse.BooleanOptionalAction)
     omnia_args.add_argument("--set-water-temp", metavar="TEMP", type=int, help="set desired outlet water temperature")
     omnia_args.add_argument("--mode", choices=["auto", "cool", "heat"])
+    omnia_args.add_argument("--set-power-limit", metavar="[0-8]", help="limit input power (use 0 for no limit)", type=int)
 
-    args = parser.parse_args()
 
-    client = ModbusClient(port=args.device, baudrate=args.baudrate, bytesize=args.bytesize, parity=args.parity, stopbits=args.stopbits, timeout=1, retries=1)
-    client.connect()
+def run_actions(client, args):
+    omnia = Omnia(client, args.slave)
 
-    if not client.is_socket_open():
-        print("failed")
-        sys.exit(1)
+    if args.power is not None:
+        omnia.set_zone1_power(args.power)
 
-    omnia = Omnia(client, args.unit)
+    if args.silent_mode is not None:
+        omnia.set_silent(args.silent_mode)
 
-    try:
-        if args.power is not None:
-            omnia.set_zone1_power(args.power)
+    if args.eco_mode is not None:
+        omnia.set_eco_mode(args.eco_mode)
 
-        if args.silent_mode is not None:
-            omnia.set_silent(args.silent_mode)
+    if args.mode is not None:
+        omnia.set_mode(args.mode)
 
-        if args.eco_mode is not None:
-            omnia.set_eco_mode(args.eco_mode)
+    if args.set_water_temp is not None:
+        omnia.set_zone1_water_temperature(args.set_water_temp)
 
-        if args.mode is not None:
-            omnia.set_mode(args.mode)
+    if args.set_power_limit is not None:
+        omnia.set_power_limit(args.set_power_limit)
 
-        if args.set_water_temp is not None:
-            omnia.set_zone1_water_temperature(args.set_water_temp)
+    if args.read_info:
+        omnia.read_info()
 
-        if args.read_info:
-            omnia.read_info()
+    if args.read_holding is not None:
+        omnia.read_register(args.read_holding)
 
-        if args.read_holding is not None:
-            omnia.read_register(args.read_holding)
+    if args.write_holding is not None:
+        omnia.write_register(args.write_holding[0], value=args.write_holding[1])
 
-        if args.write_holding is not None:
-            omnia.write_register(args.write_holding[0], value=args.write_holding[1])
 
-    finally:
-        client.close()
+if __name__ == "__main__":
+    run(os.path.basename(__file__), add_arguments, run_actions)

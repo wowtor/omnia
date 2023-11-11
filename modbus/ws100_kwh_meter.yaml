@@ -1,0 +1,235 @@
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} voltage"
+    id: "${prefix}_voltage"
+    register_type: read
+    address: 0x100
+    value_type: S_DWORD
+    device_class: VOLTAGE
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    filters:
+      - multiply: .001
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} current"
+    id: "${prefix}_current"
+    register_type: read
+    address: 0x102
+    value_type: S_DWORD
+    device_class: CURRENT
+    unit_of_measurement: "mA"
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power"
+    id: "${prefix}_power"
+    register_type: read
+    address: 0x104
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} apparent power"
+    id: "${prefix}_apparent_power"
+    register_type: read
+    address: 0x106
+    value_type: S_DWORD
+    device_class: APPARENT_POWER
+    unit_of_measurement: "VA"
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} frequency"
+    id: "${prefix}_frequency"
+    register_type: read
+    address: 0x10a
+    value_type: U_WORD
+    device_class: FREQUENCY
+    unit_of_measurement: "Hz"
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power factor"
+    id: "${prefix}_power_factor"
+    register_type: read
+    address: 0x10b
+    value_type: S_WORD
+    device_class: POWER_FACTOR
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward energy"
+    id: "${prefix}_forward_energy"
+    register_type: read
+    address: 0x10e
+    value_type: U_DWORD
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 2
+    filters:
+      - multiply: .01
+    state_class: total_increasing
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse energy"
+    id: "${prefix}_reverse_energy"
+    register_type: read
+    address: 0x118
+    value_type: U_DWORD
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 2
+    filters:
+      - multiply: .01
+    state_class: total_increasing
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} energy"
+    id: "${prefix}_energy"
+    register_type: read
+    address: 0x122
+    value_type: S_DWORD
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 2
+    filters:
+      - multiply: .01
+    state_class: total
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward demand"
+    id: "${prefix}_forward_demand"
+    register_type: read
+    address: 0x176
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward maximum demand"
+    id: "${prefix}_forward_max_demand"
+    register_type: read
+    address: 0x178
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse demand"
+    id: "${prefix}_reverse_demand"
+    register_type: read
+    address: 0x17a
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse maximum demand"
+    id: "${prefix}_reverse_max_demand"
+    register_type: read
+    address: 0x17c
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 1
+    filters:
+      - multiply: .1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} modbus slave id"
+    id: "${prefix}_modbus_slave_id"
+    register_type: read
+    address: 0x1003
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} firmware version"
+    id: "${prefix}_firmware"
+    register_type: read
+    address: 0x1004
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} hardware version"
+    id: "${prefix}_hardware"
+    register_type: read
+    address: 0x1005
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} serial number"
+    id: "${prefix}_serial_no"
+    register_type: read
+    address: 0x1000
+    register_count: 6
+    response_size: 24
+    raw_encode: HEXBYTES
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+
+#button:
+#  - platform: template
+#    name: "${friendly_prefix} reset counters"
+#    id: "${prefix}_reset_counters"
+#    entity_category: CONFIG
+#    on_press:
+#      then:
+#        - lambda: |-
+#            modbus_controller::ModbusController *controller = id(${prefix}_modbus);
+#            modbus_controller::ModbusCommandItem resetfilter = modbus_controller::ModbusCommandItem::create_write_single_command(controller, 0x2002, 0x3000);
+#            controller->queue_command(resetfilter);
+#  - platform: template
+#    name: "${friendly_prefix} reset max demand"
+#    id: "${prefix}_reset_max_demand"
+#    entity_category: CONFIG
+#    on_press:
+#      then:
+#        - lambda: |-
+#            modbus_controller::ModbusController *controller = id(${prefix}_modbus);
+#            modbus_controller::ModbusCommandItem resetfilter = modbus_controller::ModbusCommandItem::create_write_single_command(controller, 0x2003, 0xf);
+#            controller->queue_command(resetfilter);

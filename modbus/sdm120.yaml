@@ -1,0 +1,163 @@
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} voltage"
+    id: "${prefix}_voltage"
+    register_type: read
+    address: 30001
+    value_type: FP32
+    device_class: VOLTAGE
+    unit_of_measurement: V
+    accuracy_decimals: 1
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} current"
+    id: "${prefix}_current"
+    register_type: read
+    address: 3007
+    value_type: FP32
+    device_class: CURRENT
+    unit_of_measurement: A
+    accuracy_decimals: 3
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power"
+    id: "${prefix}_power"
+    register_type: read
+    address: 30013
+    value_type: FP32
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} apparent power"
+    id: "${prefix}_apparent_power"
+    register_type: read
+    address: 30019
+    value_type: FP32
+    device_class: APPARENT_POWER
+    unit_of_measurement: VA
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reactive power"
+    id: "${prefix}_reactive_power"
+    register_type: read
+    address: 30025
+    value_type: FP32
+    device_class: REACTIVE_POWER
+    unit_of_measurement: VAr
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} power factor"
+    id: "${prefix}_power_factor"
+    register_type: read
+    address: 30031
+    value_type: FP32
+    device_class: POWER_FACTOR
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    entity_category: DIAGNOSTIC
+    filters:
+      - multiply: 100
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} frequency"
+    id: "${prefix}_frequency"
+    register_type: read
+    address: 30071
+    value_type: FP32
+    device_class: FREQUENCY
+    unit_of_measurement: Hz
+    accuracy_decimals: 1
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward energy"
+    id: "${prefix}_forward_energy"
+    register_type: read
+    address: 30073
+    value_type: FP32
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 3
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse energy"
+    id: "${prefix}_reverse_energy"
+    register_type: read
+    address: 30075
+    value_type: FP32
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 3
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} energy"
+    id: "${prefix}_energy"
+    register_type: read
+    address: 30343
+    value_type: FP32
+    device_class: ENERGY
+    unit_of_measurement: kWh
+    accuracy_decimals: 3
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} forward maximum demand"
+    id: "${prefix}_forward_max_demand"
+    register_type: read
+    address: 30091
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} reverse maximum demand"
+    id: "${prefix}_reverse_max_demand"
+    register_type: read
+    address: 30095
+    value_type: S_DWORD
+    device_class: POWER
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} firmware version"
+    id: "${prefix}_firmware"
+    register_type: read
+    address: 464516
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} serial number"
+    id: "${prefix}_serial_no"
+    register_type: read
+    address: 464513
+    register_count: 2
+    response_size: 8
+    raw_encode: HEXBYTES
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
