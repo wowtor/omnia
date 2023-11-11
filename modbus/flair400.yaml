@@ -108,6 +108,44 @@ sensor:
     filters:
       - multiply: .1
 
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} software version"
+    id: "${prefix}_software_version"
+    register_type: read
+    address: 4000
+    register_count: 3
+    response_size: 24
+    raw_encode: COMMA
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} hardware version"
+    id: "${prefix}_hardware_version"
+    register_type: read
+    address: 4003
+    register_count: 1
+    response_size: 8
+    raw_encode: COMMA
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} serial number"
+    id: "${prefix}_serial_no"
+    register_type: read
+    address: 4013
+    register_count: 6
+    response_size: 48
+    raw_encode: NONE
+    entity_category: DIAGNOSTIC
+    skip_updates: 720
+    disabled_by_default: true
+
 switch:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"

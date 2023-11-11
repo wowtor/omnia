@@ -13,8 +13,8 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} climate curve set"
-    id: "${prefix}_climate_curve_set"
+    name: "${friendly_prefix} curve selected"
+    id: "${prefix}_climate_curve_selected"
     register_type: holding
     address: 6
     value_type: U_WORD
@@ -159,7 +159,7 @@ sensor:
     address: 119
     entity_category: DIAGNOSTIC
     value_type: U_WORD
-    device_class: CURRENT
+    device_class: VOLTAGE
     unit_of_measurement: V
     disabled_by_default: true
   - platform: modbus_controller
@@ -220,6 +220,17 @@ sensor:
     id: "${prefix}_tf_module_temperature"
     register_type: holding
     address: 135
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve calculated setpoint"
+    id: "${prefix}_curve_calculated_setpoint"
+    register_type: holding
+    address: 136
     entity_category: DIAGNOSTIC
     value_type: U_WORD
     device_class: TEMPERATURE
@@ -341,30 +352,15 @@ switch:
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} climate curve enabled"
-    id: "${prefix}_climate_curve_enabled"
+    name: "${friendly_prefix} curve mode"
+    id: "${prefix}_curve_mode"
     icon: "mdi:snowflake-thermometer"
     register_type: holding
     address: 5
     bitmask: 0x1000
+    entity_category: CONFIG
 
 number:
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} climate curve"
-    id: "${prefix}_climate_curve"
-    icon: "mdi:snowflake-thermometer"
-    address: 6
-    value_type: U_WORD
-#    min_value: 1
-#    max_value: 2313
-#    step: 1
-    lambda: "return int(x) & 0xff;"
-    write_lambda: |-
-      uint16_t modbus_value = int(x) | 0x100;
-      ESP_LOGD("main","sending modbus value: %d", modbus_value);
-      payload.push_back(modbus_value);
-      return x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} water temperature setting"
@@ -379,16 +375,52 @@ number:
     step: 1
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} water temperature setting zone 2"
-    id: "${prefix}_water_temperature_setting_zone2"
-    icon: "mdi:thermometer-water"
+    name: "${friendly_prefix} curve heating setpoint1"
+    id: "${prefix}_curve_heating_setpoint1"
     device_class: TEMPERATURE
     entity_category: CONFIG
-    address: 12
+    address: 265
     value_type: U_WORD
     min_value: 25
-    max_value: 55
+    max_value: 65
     step: 1
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve heating setpoint2"
+    id: "${prefix}_curve_heating_setpoint2"
+    device_class: TEMPERATURE
+    entity_category: CONFIG
+    address: 266
+    value_type: U_WORD
+    min_value: 25
+    max_value: 65
+    step: 1
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve heating ambient1"
+    id: "${prefix}_curve_heating_ambient1"
+    device_class: TEMPERATURE
+    entity_category: CONFIG
+    address: 267
+    value_type: U_WORD
+    min_value: -25
+    max_value: 35
+    step: 1
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve heating ambient2"
+    id: "${prefix}_curve_heating_ambient2"
+    device_class: TEMPERATURE
+    entity_category: CONFIG
+    address: 268
+    value_type: U_WORD
+    min_value: -25
+    max_value: 35
+    step: 1
+    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} power limit"
@@ -399,6 +431,7 @@ number:
     min_value: 0
     max_value: 8
     step: 1
+    entity_category: CONFIG
 
 text_sensor:
   - platform: modbus_controller
