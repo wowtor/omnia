@@ -49,6 +49,16 @@ Connect as follows:
 **Note: according to the Ferroli manual, the H1 and H2 should be reversed. That
 didn't work for me!**
 
+The settings of the serial connection (rs485) are:
+
+* baudrate: 9600
+* byte size: 8
+* parity: none
+* stop bits: 1
+* modbus slave id: 1
+
+These settings cannot be changed.
+
 
 Modbus via USB
 --------------
