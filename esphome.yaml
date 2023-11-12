@@ -1,5 +1,5 @@
 substitutions:
-  name: omnia_adapter
+  hostname: omnia-adapter
   friendly_name: Omnia Adapter
 
 modbus_controller:
@@ -58,7 +58,7 @@ packages:
       friendly_prefix: PV Meter
 
 esphome:
-  name: $name
+  name: $hostname
   #name_add_mac_suffix: true
 
 esp32:

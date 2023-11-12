@@ -110,8 +110,8 @@ Some observations:
 - most of the settings can't be changed while the heat pump is active, or it
   will turn itself off;
 
-- input power limitation: 0 = no limit (per user manual), other values are
-  unclear;
+- input power limitation: 0 = no limit (per user manual), the higher the
+  value, the lower the maximum power usage?;
 
 
 Glossary
