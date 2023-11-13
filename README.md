@@ -32,6 +32,10 @@ desired water temperature. Also read sensor values, such as fan speed.
 * What is local stays local, no cloud involved.
 * Integrates with domotica, such as [Home Assistant](https://www.home-assistant.io/).
 
+The alternative is to use the cloud or wifi, as implemented by, for example,
+the custom integration [Midea AC LAN](https://github.com/georgezhao2010/midea_ac_lan)
+for Home Assistant.
+
 
 Connecting the remote controller
 --------------------------------
