@@ -53,13 +53,19 @@ Connect as follows:
 **Note: according to the Ferroli manual, the H1 and H2 should be reversed. That
 didn't work for me!**
 
-The settings of the serial connection (rs485) are:
+When setting up a serial connection (rs485), you will need to configure the
+correct parameters. The factory defaults are:
 
 * baudrate: 9600
 * byte size: 8
 * parity: none
 * stop bits: 1
-* modbus slave id: 1
+
+and the modbus parameters are:
+
+* modbus method: RTU
+* modbus slave: 1
+
 
 These settings cannot be changed.
 
@@ -96,21 +102,12 @@ Assistant via USB. Alternatively, use an another device like a Raspberry Pi
 and expose modbus to Home Assistant via RTU over TCP using
 [ser2net](https://linux.die.net/man/8/ser2net).
 
-In both cases you need to configure the correct parameters. The factory
-defaults of the controller unit are:
-
-* modbus method: RTU
-* modbus slave: 1
-* baud: 9600
-* byte size: 8
-* stop bits: 1
-* parity: N
-
 
 Integrating Home Assistant via Esphome
 --------------------------------------
 
-See the `modbus/omnia.yaml` file for esphome configuration.
+See the `modbus/omnia.yaml` file for Omnia specific configuration, or
+`esphome.yaml` for a full setup.
 
 
 Operating the Omnia heatpump
