@@ -1,16 +1,16 @@
 sensor:
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} water temperature setpoint (duplicate)"
-    id: "${prefix}_water_temperature_setpoint_duplicate"
-    register_type: holding
-    address: 2
-    unit_of_measurement: "°C"
-    value_type: U_WORD
-    device_class: TEMPERATURE
-    entity_category: DIAGNOSTIC
-    bitmask: 0xff
-    disabled_by_default: true
+#  - platform: modbus_controller
+#    modbus_controller_id: "${prefix}_modbus"
+#    name: "${friendly_prefix} water temperature setpoint (duplicate)"
+#    id: "${prefix}_water_temperature_setpoint_duplicate"
+#    register_type: holding
+#    address: 2
+#    unit_of_measurement: "°C"
+#    value_type: U_WORD
+#    device_class: TEMPERATURE
+#    entity_category: DIAGNOSTIC
+#    bitmask: 0xff
+#    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected"
@@ -365,8 +365,8 @@ switch:
 number:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} water temperature setpoint"
-    id: "${prefix}_water_temperature_setpoint"
+    name: "${friendly_prefix} preset setpoint"
+    id: "${prefix}_preset_setpoint"
     icon: "mdi:thermometer-water"
     device_class: TEMPERATURE
     entity_category: CONFIG
