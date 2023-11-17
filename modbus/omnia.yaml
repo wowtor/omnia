@@ -73,7 +73,7 @@ sensor:
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: DIAGNOSTIC
-    value_type: U_WORD
+    value_type: S_WORD
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} condenser discharge temperature"
@@ -406,7 +406,7 @@ number:
     device_class: TEMPERATURE
     entity_category: CONFIG
     address: 267
-    value_type: U_WORD
+    value_type: S_WORD
     min_value: -25
     max_value: 35
     step: 1
@@ -418,7 +418,7 @@ number:
     device_class: TEMPERATURE
     entity_category: CONFIG
     address: 268
-    value_type: U_WORD
+    value_type: S_WORD
     min_value: -25
     max_value: 35
     step: 1
