@@ -23,12 +23,31 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} operating frequency"
+    id: "${prefix}_operating_frequency"
+    register_type: holding
+    address: 100
+    unit_of_measurement: "Hz"
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} fan speed"
     id: "${prefix}_fan_speed"
     icon: "mdi:wind-power"
     register_type: holding
     address: 102
     unit_of_measurement: "r/min"
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} expansion valve openness"
+    id: "${prefix}_pmv_openness"
+    register_type: holding
+    address: 103
+    unit_of_measurement: "%"
     value_type: U_WORD
     entity_category: DIAGNOSTIC
   - platform: modbus_controller
@@ -175,6 +194,14 @@ sensor:
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} status code"
+    id: "${prefix}_status_code"
+    register_type: holding
+    address: 124
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} software version"
     id: "${prefix}_software_version"
     register_type: holding
@@ -248,6 +275,7 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: .01
+    entity_category: DIAGNOSTIC
     disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -312,6 +340,17 @@ sensor:
 
 
 select:
+  - platform: template
+    name: "${friendly_prefix} silent mode"
+    id: "${prefix}_silent_mode"
+    icon: "mdi:home-sound-out"
+    options:
+      - "normal"
+      - "silent level 1"
+      - "silent level 2"
+    set_action:
+      then:
+        - switch.turn_on: "${prefix}_silent_mode_on_off"
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"
@@ -345,8 +384,8 @@ switch:
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} silent mode"
-    id: "${prefix}_silent_mode"
+    name: "${friendly_prefix} silent mode on/off"
+    id: "${prefix}_silent_mode_on_off"
     icon: "mdi:home-sound-out"
     register_type: holding
     address: 5
@@ -375,6 +414,42 @@ number:
     min_value: 25
     max_value: 55
     step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} pump running time"
+    id: "${prefix}_dhw_pump_running_time"
+    entity_category: CONFIG
+    device_class: DURATION
+    address: 209
+    value_type: U_WORD
+    min_value: 5
+    max_value: 120
+    step: 1
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling mode compressor startup interval"
+    id: "${prefix}_cool_compressor_startup_interval"
+    device_class: DURATION
+    entity_category: CONFIG
+    address: 223
+    value_type: U_WORD
+    min_value: 5
+    max_value: 60
+    step: 1
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} heating mode compressor startup interval"
+    id: "${prefix}_heat_compressor_startup_interval"
+    device_class: DURATION
+    entity_category: CONFIG
+    address: 228
+    value_type: U_WORD
+    min_value: 5
+    max_value: 60
+    step: 1
+    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve heating setpoint1"
@@ -439,70 +514,87 @@ number:
 text_sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} current HVAC mode"
+    id: "${prefix}_current_hvac_mode"
+    register_type: holding
+    address: 101
+    entity_category: DIAGNOSTIC
+    raw_encode: HEXBYTES
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      ESP_LOGD("main","Found hvac mode code: %d", value);
+      switch (value) {
+        case 0:  return std::string("off");
+        case 2:  return std::string("cool");
+        case 3:  return std::string("heat");
+        default: return to_string(value);
+      }
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} status"
     id: "${prefix}_status"
     register_type: holding
     address: 124
     entity_category: DIAGNOSTIC
+    raw_encode: HEXBYTES
     icon: mdi:alert
-    lambda: !lambda |-
-      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
-      ESP_LOGD("main","Found device status int : %d", int_mode);
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      ESP_LOGD("main","Found device status int : %d", value);
       std::string mode_str;
-      switch (int_mode) {
-        case 0:  mode_str = "good"; break;
-        case 1:  mode_str = "E0: Water flow fault (E8 displayed 3 times)"; break;
-        case 2:  mode_str = "E1: Phase loss or neutral wire and live wire are connected"; break;
-        case 3:  mode_str = "E2: Communication fault between controller and hydraulic"; break;
-        case 4:  mode_str = "E3: Final outlet water temperature sensor (T1) fault"; break;
-        case 5:  mode_str = "E4: Water tank temp. sensor (T5) fault"; break;
-        case 6:  mode_str = "E5: The condensor outlet refrigerant temperature sensor (T3)"; break;
-        case 7:  mode_str = "E6: The ambient temperature sensor (T4) fault"; break;
-        case 8:  mode_str = "E7: Buffer tank up temperature sensor (Tbt1) fault"; break;
-        case 9:  mode_str = "E8: Water flow failure"; break;
-        case 10: mode_str = "E9: Compressor suction temp. sensor (Th) fault"; break;
-        case 11: mode_str = "Ea: Compressor discharge temp. sensor (Tp) fault"; break;
-        case 12: mode_str = "Eb: Solar temp. sensor (Tsolar) fault"; break;
-        case 13: mode_str = "Ec: The balance tank low temp. sensor (Tbt2) fault"; break;
-        case 14: mode_str = "Ed: The plate exchanger water inlet temp. sensor (Tw_in) fault"; break;
-        case 15: mode_str = "Ee: The main control board of hydraulic module EEPROM"; break;
-        case 20: mode_str = "P0: Low pressure protection"; break;
-        case 21: mode_str = "P1: High pressure protection"; break;
-        case 23: mode_str = "P3: Compressor overcurrent protection"; break;
-        case 24: mode_str = "P4: compressor discharge temp. too high protection"; break;
-        case 25: mode_str = "P5: high temperature difference protection between water inlet and water outlet of the plate heat exchanger"; break;
-        case 26: mode_str = "P6: inverter module protection"; break;
-        case 31: mode_str = "Pb: Anti-freeze mode protection"; break;
-        case 33: mode_str = "Pd: high temperature protection of refrigerant outlet temp. of condenser"; break;
-        case 38: mode_str = "Pp: water inlet temperature is higher than water outlet in heating mode"; break;
-        case 39: mode_str = "H0: communication fault between main control board of hydraulic module and main control board PCB B"; break;
-        case 40: mode_str = "H1"; break;
-        case 41: mode_str = "H2"; break;
-        case 42: mode_str = "H3"; break;
-        case 43: mode_str = "H4"; break;
-        case 44: mode_str = "H5"; break;
-        case 45: mode_str = "H6: DC fan motor fault"; break;
-        case 46: mode_str = "H7: main circuit voltage protection fault"; break;
-        case 47: mode_str = "H8: pressure sensor fault"; break;
-        case 48: mode_str = "H9"; break;
-        case 49: mode_str = "Ha"; break;
-        case 50: mode_str = "Hb"; break;
-        case 52: mode_str = "Hd"; break;
-        case 53: mode_str = "He"; break;
-        case 54: mode_str = "Hf: inverter module board EE PROM fault"; break;
-        case 55: mode_str = "Hh"; break;
-        case 57: mode_str = "Hp"; break;
-        case 65: mode_str = "C7"; break;
-        case 112:mode_str = "bH"; break;
-        case 116:mode_str = "F1"; break;
-        case 134:mode_str = "L0: DC compressor inverter module fault"; break;
-        case 135:mode_str = "L1: DC bus low voltage protection (from inverter module mostly when compressor running)"; break;
-        case 136:mode_str = "L2: DC bus high voltage protection from DC driver"; break;
-        case 138:mode_str = "L4: MCE fault"; break;
-        case 139:mode_str = "L5: Zero speed protection"; break;
-        case 141:mode_str = "L7: Phase sequence fault"; break;
-        case 142:mode_str = "L8: Compressor frequency variation greater than 15Hz within one second protection"; break;
-        case 143:mode_str = "L9: Actual compressor frequency differs from target frequency by more than 15Hz protection"; break;
-        default: mode_str = to_string(int_mode); break;
+      switch (value) {
+        case 0:  return std::string("Fine");
+        case 1:  return std::string("E0: Water flow fault (E8 displayed 3 times)");
+        case 2:  return std::string("E1: Phase loss or neutral wire and live wire are connected");
+        case 3:  return std::string("E2: Communication fault between controller and hydraulic");
+        case 4:  return std::string("E3: Final outlet water temperature sensor (T1) fault");
+        case 5:  return std::string("E4: Water tank temp. sensor (T5) fault");
+        case 6:  return std::string("E5: The condensor outlet refrigerant temperature sensor (T3)");
+        case 7:  return std::string("E6: The ambient temperature sensor (T4) fault");
+        case 8:  return std::string("E7: Buffer tank up temperature sensor (Tbt1) fault");
+        case 9:  return std::string("E8: Water flow failure");
+        case 10: return std::string("E9: Compressor suction temp. sensor (Th) fault");
+        case 11: return std::string("Ea: Compressor discharge temp. sensor (Tp) fault");
+        case 12: return std::string("Eb: Solar temp. sensor (Tsolar) fault");
+        case 13: return std::string("Ec: The balance tank low temp. sensor (Tbt2) fault");
+        case 14: return std::string("Ed: The plate exchanger water inlet temp. sensor (Tw_in) fault");
+        case 15: return std::string("Ee: The main control board of hydraulic module EEPROM");
+        case 20: return std::string("P0: Low pressure protection");
+        case 21: return std::string("P1: High pressure protection");
+        case 23: return std::string("P3: Compressor overcurrent protection");
+        case 24: return std::string("P4: compressor discharge temp. too high protection");
+        case 25: return std::string("P5: high temperature difference protection between water inlet and water outlet of the plate heat exchanger");
+        case 26: return std::string("P6: inverter module protection");
+        case 31: return std::string("Pb: Anti-freeze mode protection");
+        case 33: return std::string("Pd: high temperature protection of refrigerant outlet temp. of condenser");
+        case 38: return std::string("Pp: water inlet temperature is higher than water outlet in heating mode");
+        case 39: return std::string("H0: communication fault between main control board of hydraulic module and main control board PCB B");
+        case 40: return std::string("H1");
+        case 41: return std::string("H2");
+        case 42: return std::string("H3");
+        case 43: return std::string("H4");
+        case 44: return std::string("H5");
+        case 45: return std::string("H6: DC fan motor fault");
+        case 46: return std::string("H7: main circuit voltage protection fault");
+        case 47: return std::string("H8: pressure sensor fault");
+        case 48: return std::string("H9");
+        case 49: return std::string("Ha");
+        case 50: return std::string("Hb");
+        case 52: return std::string("Hd");
+        case 53: return std::string("He");
+        case 54: return std::string("Hf: inverter module board EE PROM fault");
+        case 55: return std::string("Hh");
+        case 57: return std::string("Hp");
+        case 65: return std::string("C7");
+        case 112:return std::string("bH");
+        case 116:return std::string("F1");
+        case 134:return std::string("L0: DC compressor inverter module fault");
+        case 135:return std::string("L1: DC bus low voltage protection (from inverter module mostly when compressor running)");
+        case 136:return std::string("L2: DC bus high voltage protection from DC driver");
+        case 138:return std::string("L4: MCE fault");
+        case 139:return std::string("L5: Zero speed protection");
+        case 141:return std::string("L7: Phase sequence fault");
+        case 142:return std::string("L8: Compressor frequency variation greater than 15Hz within one second protection");
+        case 143:return std::string("L9: Actual compressor frequency differs from target frequency by more than 15Hz protection");
+        default: return to_string(value);
       }
-      return mode_str;

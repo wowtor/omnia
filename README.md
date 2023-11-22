@@ -131,6 +131,16 @@ Glossary
 * AHS: Auxiliary Heating System (external heater)
 * DHW: Domestic Hot Water
 * IBH: Interal Backup Heating (electric heater)
+* PMV: pulse modulating valve
+* T1: system water outlet temperature (behind auxiliary heater)
+* T1S: desired water outlet temperature
+* T1S2: desired water outlet temperature for zone 2
+* T2: refrigerant liquid side temperature sensor
+* T2B: refrigerant gas side temperature sensor
+* T3: condenser temperature sensor
+* T4: outdoor ambient temperature sensor
+* T5: water tank temperature sensor
+* Ta: room temperature
 * TBH: electric water tank heater
 
 
