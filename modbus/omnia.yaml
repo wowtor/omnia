@@ -524,10 +524,10 @@ text_sensor:
       uint16_t value = modbus_controller::word_from_hex_str(x, 0);
       ESP_LOGD("main","Found hvac mode code: %d", value);
       switch (value) {
-        case 0:  return std::string("off");
+        case 0:  return std::string("idle");
         case 2:  return std::string("cool");
         case 3:  return std::string("heat");
-        default: return to_string(value);
+        default: return x;
       }
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -596,5 +596,5 @@ text_sensor:
         case 141:return std::string("L7: Phase sequence fault");
         case 142:return std::string("L8: Compressor frequency variation greater than 15Hz within one second protection");
         case 143:return std::string("L9: Actual compressor frequency differs from target frequency by more than 15Hz protection");
-        default: return to_string(value);
+        default: return x;
       }
