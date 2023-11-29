@@ -524,7 +524,7 @@ text_sensor:
       uint16_t value = modbus_controller::word_from_hex_str(x, 0);
       ESP_LOGD("main","Found hvac mode code: %d", value);
       switch (value) {
-        case 0:  return std::string("idle");
+        case 0:  return std::string("off");
         case 2:  return std::string("cool");
         case 3:  return std::string("heat");
         default: return x;
@@ -543,7 +543,7 @@ text_sensor:
       ESP_LOGD("main","Found device status int : %d", value);
       std::string mode_str;
       switch (value) {
-        case 0:  return std::string("Fine");
+        case 0:  return std::string("fine");
         case 1:  return std::string("E0: Water flow fault (E8 displayed 3 times)");
         case 2:  return std::string("E1: Phase loss or neutral wire and live wire are connected");
         case 3:  return std::string("E2: Communication fault between controller and hydraulic");
