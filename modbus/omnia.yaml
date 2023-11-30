@@ -287,20 +287,23 @@ sensor:
     register_type: holding
     address: 140
     device_class: POWER
-    unit_of_measurement: kW
+    unit_of_measurement: W
     value_type: U_WORD
     accuracy_decimals: 1
     filters:
-      - multiply: .01
+      - multiply: 10
   - platform: integration
     name: "${friendly_prefix} output energy"
     id: "${prefix}_output_energy"
     sensor: "${prefix}_output_power"
     time_unit: h
+    unit_of_measurement: kWh
     integration_method: trapezoid
     device_class: ENERGY
     state_class: total_increasing
     accuracy_decimals: 1
+    filters:
+      - multiply: .001
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling setpoint upper limit"
@@ -367,7 +370,6 @@ select:
     set_action:
       then:
         - switch.turn_on: "${prefix}_silent_mode_on_off"
-    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"

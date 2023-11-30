@@ -6,7 +6,7 @@ modbus_controller:
   - id: omnia_modbus
     address: 1
     setup_priority: -10
-    update_interval: 60s
+    update_interval: 20s
 #  - id: flair_modbus
 #    address: 20
 #    setup_priority: -10
