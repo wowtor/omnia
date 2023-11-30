@@ -283,15 +283,24 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} output power"
-    id: "${prefix}_power_output"
+    id: "${prefix}_output_power"
     register_type: holding
     address: 140
     device_class: POWER
-    unit_of_measurement: W
+    unit_of_measurement: kW
     value_type: U_WORD
-    accuracy_decimals: 0
+    accuracy_decimals: 1
     filters:
-      - multiply: 10
+      - multiply: .01
+  - platform: integration
+    name: "${friendly_prefix} output energy"
+    id: "${prefix}_output_energy"
+    sensor: "${prefix}_output_power"
+    time_unit: h
+    integration_method: trapezoid
+    device_class: ENERGY
+    state_class: total_increasing
+    accuracy_decimals: 1
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling setpoint upper limit"
@@ -304,6 +313,7 @@ sensor:
     bitmask: 0xff
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+    skip_updates: 60
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling setpoint lower limit"
@@ -316,6 +326,7 @@ sensor:
     bitmask: 0xff
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+    skip_updates: 60
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating setpoint upper limit"
@@ -328,6 +339,7 @@ sensor:
     bitmask: 0xff
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+    skip_updates: 60
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating setpoint lower limit"
@@ -340,6 +352,7 @@ sensor:
     bitmask: 0xff
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+    skip_updates: 60
 
 
 select:
@@ -354,6 +367,7 @@ select:
     set_action:
       then:
         - switch.turn_on: "${prefix}_silent_mode_on_off"
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"
@@ -417,6 +431,7 @@ number:
     min_value: 25
     max_value: 55
     step: 1
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} pump running time"
@@ -429,6 +444,7 @@ number:
     max_value: 120
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling mode compressor startup interval"
@@ -441,6 +457,7 @@ number:
     max_value: 60
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating mode compressor startup interval"
@@ -453,6 +470,7 @@ number:
     max_value: 60
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve heating setpoint1"
@@ -465,6 +483,7 @@ number:
     max_value: 65
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve heating setpoint2"
@@ -477,6 +496,7 @@ number:
     max_value: 65
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve heating ambient1"
@@ -489,6 +509,7 @@ number:
     max_value: 35
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve heating ambient2"
@@ -501,6 +522,7 @@ number:
     max_value: 35
     step: 1
     disabled_by_default: true
+    skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} power limit"
@@ -513,6 +535,7 @@ number:
     step: 1
     entity_category: CONFIG
     disabled_by_default: true
+    skip_updates: 30
 
 text_sensor:
   - platform: modbus_controller
