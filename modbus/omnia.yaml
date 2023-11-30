@@ -93,6 +93,10 @@ sensor:
     unit_of_measurement: "°C"
     entity_category: DIAGNOSTIC
     value_type: S_WORD
+    filters:
+      - sliding_window_moving_average:
+          window_size: 15
+          send_every: 5
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} condenser discharge temperature"
@@ -289,7 +293,7 @@ sensor:
     device_class: POWER
     unit_of_measurement: W
     value_type: U_WORD
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     filters:
       - multiply: 10
   - platform: integration
@@ -301,7 +305,7 @@ sensor:
     integration_method: trapezoid
     device_class: ENERGY
     state_class: total_increasing
-    accuracy_decimals: 1
+    accuracy_decimals: 2
     filters:
       - multiply: .001
   - platform: modbus_controller
