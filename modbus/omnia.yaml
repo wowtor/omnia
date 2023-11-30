@@ -259,10 +259,12 @@ sensor:
     register_type: holding
     address: 136
     entity_category: DIAGNOSTIC
-    value_type: U_WORD
+    value_type: S_WORD
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     disabled_by_default: true
+    filters:
+      - filter_out: -1
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} water flow"
