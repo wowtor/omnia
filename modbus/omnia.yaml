@@ -27,7 +27,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected"
-    id: "${prefix}_curve_selected_ro"
     register_type: holding
     address: 6
     value_type: U_WORD
@@ -212,6 +211,7 @@ sensor:
     disabled_by_default: true
   - platform: template
     name: "${friendly_prefix} apparent power"
+    id: "${prefix}_apparent_power"
     lambda: "return id(${prefix}_operating_voltage).state * id(${prefix}_operating_current).state;"
     update_interval: 30s
     unit_of_measurement: VA
@@ -359,6 +359,19 @@ sensor:
       - below: 0
         then:
           - switch.turn_off: "${prefix}_enable"
+  # COP = output power / input power
+  # TODO: add power factor to apparent power to get the actual power
+  - platform: template
+    name: "${friendly_prefix} COP"
+    lambda: |-
+        float output_power = id(${prefix}_output_power).state;
+        float apparent_power = id(${prefix}_apparent_power).state;
+        return 100 * output_power / apparent_power;
+    update_interval: 30s
+    unit_of_measurement: "%"
+    icon: mdi:percent
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
   - platform: integration
     name: "${friendly_prefix} output energy"
     id: "${prefix}_output_energy"
@@ -528,7 +541,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected"
-    id: _curve_selected
+    id: "${prefix}_curve_selected"
     register_type: holding
     address: 6
     value_type: U_WORD
@@ -539,13 +552,13 @@ number:
     entity_category: CONFIG
     lambda: "return (int)x & 0xff;"
     write_lambda: |-
-      int writeval = ((int)id(_curve_selected_zone2).state << 8) | (int)x;
+      int writeval = ((int)id(${prefix}_curve_selected_zone2).state << 8) | (int)x;
       ESP_LOGI("main", "write curve selection: %d", writeval);
       return writeval;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected zone2"
-    id: _curve_selected_zone2
+    id: "${prefix}_curve_selected_zone2"
     register_type: holding
     address: 6
     value_type: U_WORD
@@ -556,7 +569,7 @@ number:
     entity_category: CONFIG
     lambda: "return (int)x >> 8;"
     write_lambda: |-
-      int writeval = ((int)x << 8) | (int)id(_curve_selected).state;
+      int writeval = ((int)x << 8) | (int)id(${prefix}_curve_selected).state;
       ESP_LOGI("main", "write curve selection: %d", writeval);
       return writeval;
   - platform: modbus_controller
