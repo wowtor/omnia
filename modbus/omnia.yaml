@@ -1,4 +1,10 @@
 sensor:
+  # Register address 5(PLC: 40006)
+  # Function Setting
+  # BIT7 0: Silent mode level1; 1: Silent mode level2
+  # BIT6 Silent mode
+  # Actual interpretation: 0=off; 1=level1; 2=level2
+  # NB: workaround for silent mode by lack of select/number bitmask
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} silent state"
@@ -20,7 +26,7 @@ sensor:
                   return (int)x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve selected R/O"
+    name: "${friendly_prefix} curve selected"
     id: "${prefix}_curve_selected_ro"
     register_type: holding
     address: 6
@@ -28,6 +34,9 @@ sensor:
     entity_category: DIAGNOSTIC
     bitmask: 0xff
     disabled_by_default: true
+  # Register address 100 (PLC: 40101)
+  # Operating frequency
+  # Compressor operating frequency in Hz
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} operating frequency"
@@ -38,6 +47,9 @@ sensor:
     value_type: U_WORD
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+  # Register address 102 (PLC: 40103)
+  # Fan Speed
+  # Fan speed, in r/min
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} fan speed"
@@ -170,6 +182,9 @@ sensor:
     device_class: PRESSURE
     unit_of_measurement: kPa
     disabled_by_default: true
+  # 118 (PLC: 40119)
+  # Outdoor unit current
+  # Outdoor unit operating current, unit: A
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} operating current"
@@ -181,6 +196,9 @@ sensor:
     device_class: CURRENT
     unit_of_measurement: A
     disabled_by_default: true
+  # 119 (PLC: 40120)
+  # Outdoor unit voltage
+  # Outdoor unit voltage, unit: V
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} operating voltage"
@@ -192,6 +210,17 @@ sensor:
     device_class: VOLTAGE
     unit_of_measurement: V
     disabled_by_default: true
+  - platform: template
+    name: "${friendly_prefix} apparent power"
+    lambda: "return id(${prefix}_operating_voltage).state * id(${prefix}_operating_current).state;"
+    update_interval: 30s
+    unit_of_measurement: VA
+    device_class: APPARENT_POWER
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+  # 122 (PLC: 40123)
+  # Compressor operation time
+  # Compressor operating time in hour
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} operating time"
@@ -203,6 +232,9 @@ sensor:
     device_class: DURATION
     unit_of_measurement: h
     disabled_by_default: true
+  # 124(PLC: 40125)
+  # Current fault
+  # Check the code table for detailed fault codes
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} status code"
@@ -230,6 +262,23 @@ sensor:
     value_type: U_WORD
     skip_updates: 720
     disabled_by_default: true
+  # 132(PLC: 40133)
+  # Unit target frequency
+  # Hz
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} target frequency"
+    id: "${prefix}_target_frequency"
+    register_type: holding
+    address: 132
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+    device_class: FREQUENCY
+    unit_of_measurement: Hz
+    disabled_by_default: true
+  # 133(PLC: 40134)
+  # DC bus current
+  # Unit: A
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} DC bus current"
@@ -241,6 +290,9 @@ sensor:
     device_class: CURRENT
     unit_of_measurement: A
     disabled_by_default: true
+  # 134(PLC: 40135)
+  # DC bus voltage
+  # The actual value/10, unit: V
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} DC bus voltage"
@@ -412,6 +464,10 @@ select:
     entity_category: CONFIG
 
 switch:
+  # Register address 0 (PLC:40001)
+  # Power on or off.
+  # BIT1 0: power off floor heating; 1: power on floor heating;(zone 1)
+  #	(water flow temperature control)
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} on/off"
@@ -420,6 +476,12 @@ switch:
     register_type: holding
     address: 0
     bitmask: 2
+  # Register address 5 (PLC: 40006)
+  # Function Setting
+  # BIT13 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone2)
+  # BIT12 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone1)
+  # BIT10 ECO mode
+  # bit6-7: see sensor: silent state
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} eco mode"
@@ -428,6 +490,15 @@ switch:
     register_type: holding
     address: 5
     bitmask: 0x400
+    entity_category: CONFIG
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve mode"
+    id: "${prefix}_curve_mode"
+    icon: "mdi:snowflake-thermometer"
+    register_type: holding
+    address: 5
+    bitmask: 0x1000
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -448,17 +519,12 @@ switch:
     bitmask: 0x80
     entity_category: CONFIG
     internal: true
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve mode"
-    id: "${prefix}_curve_mode"
-    icon: "mdi:snowflake-thermometer"
-    register_type: holding
-    address: 5
-    bitmask: 0x1000
-    entity_category: CONFIG
 
 number:
+  # Register address 6 (PLC: 40007)
+  # Curve Selection
+  # Bit8-Bit15 Climate Curve 1-9(zone 2)
+  # Bit0-Bit7 Climate Curve 1-9(zone 1)
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected"
