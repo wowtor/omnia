@@ -11,24 +11,12 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 from modbus_client import run
 
 
-DEFAULT_METHOD = "rtu"
-DEFAULT_BAUD = 9600
-
-BYTESIZE_CHOICES = [7, 8]
-DEFAULT_BYTESIZE = 8
-DEFAULT_STOPBITS = 1
-
-PARITY_CHOICES = ["N", "E", "O"]
-DEFAULT_PARITY = "N"
-DEFAULT_SLAVE = 1
-
-
 class Omnia:
-    def __init__(self, client, slave):
+    def __init__(self, client: ModbusClient, slave: int):
         self.client = client
         self.slave = slave
 
-    def read_register(self, address: int):
+    def read_register(self, address: int) -> int:
         assert self.client.is_socket_open()
         r = self.client.read_holding_registers(address=address, count=1, slave=self.slave)
         if r.isError():
@@ -37,7 +25,7 @@ class Omnia:
         else:
             return r.registers[0]
 
-    def write_register(self, address, value):
+    def write_register(self, address: int, value: int):
         assert self.client.is_socket_open()
         r = self.client.write_register(address=address, value=value, count=1, slave=self.slave)
         print(r)

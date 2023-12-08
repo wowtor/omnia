@@ -32,6 +32,10 @@ desired water temperature. Also read sensor values, such as fan speed.
 * What is local stays local, no cloud involved.
 * Integrates with domotica, such as [Home Assistant](https://www.home-assistant.io/).
 
+The alternative is to use the cloud or wifi, as implemented by, for example,
+the custom integration [Midea AC LAN](https://github.com/georgezhao2010/midea_ac_lan)
+for Home Assistant.
+
 
 Connecting the remote controller
 --------------------------------
@@ -48,6 +52,22 @@ Connect as follows:
 
 **Note: according to the Ferroli manual, the H1 and H2 should be reversed. That
 didn't work for me!**
+
+When setting up a serial connection (rs485), you will need to configure the
+correct parameters. The factory defaults are:
+
+* baudrate: 9600
+* byte size: 8
+* parity: none
+* stop bits: 1
+
+and the modbus parameters are:
+
+* modbus method: RTU
+* modbus slave: 1
+
+
+These settings cannot be changed.
 
 
 Modbus via USB
@@ -82,21 +102,12 @@ Assistant via USB. Alternatively, use an another device like a Raspberry Pi
 and expose modbus to Home Assistant via RTU over TCP using
 [ser2net](https://linux.die.net/man/8/ser2net).
 
-In both cases you need to configure the correct parameters. The factory
-defaults of the controller unit are:
-
-* modbus method: RTU
-* modbus slave: 1
-* baud: 9600
-* byte size: 8
-* stop bits: 1
-* parity: N
-
 
 Integrating Home Assistant via Esphome
 --------------------------------------
 
-See the `modbus/omnia.yaml` file for esphome configuration.
+See the `modbus/omnia.yaml` file for Omnia specific configuration, or
+`esphome.yaml` for a full setup.
 
 
 Operating the Omnia heatpump
@@ -110,8 +121,8 @@ Some observations:
 - most of the settings can't be changed while the heat pump is active, or it
   will turn itself off;
 
-- input power limitation: 0 = no limit (per user manual), other values are
-  unclear;
+- input power limitation: 0 = no limit (per user manual), the higher the
+  value, the lower the maximum power usage?;
 
 
 Glossary
@@ -120,6 +131,16 @@ Glossary
 * AHS: Auxiliary Heating System (external heater)
 * DHW: Domestic Hot Water
 * IBH: Interal Backup Heating (electric heater)
+* PMV: pulse modulating valve
+* T1: system water outlet temperature (behind auxiliary heater)
+* T1S: desired water outlet temperature
+* T1S2: desired water outlet temperature for zone 2
+* T2: refrigerant liquid side temperature sensor
+* T2B: refrigerant gas side temperature sensor
+* T3: condenser temperature sensor
+* T4: outdoor ambient temperature sensor
+* T5: water tank temperature sensor
+* Ta: room temperature
 * TBH: electric water tank heater
 
 
