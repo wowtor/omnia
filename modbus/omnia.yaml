@@ -315,6 +315,10 @@ sensor:
     accuracy_decimals: 0
     filters:
       - multiply: 10
+    on_value_range:
+      - below: 0
+        then:
+          - switch.turn_off: "${prefix}_enable"
   - platform: integration
     name: "${friendly_prefix} output energy"
     id: "${prefix}_output_energy"
