@@ -12,10 +12,12 @@ product, also sold under other names, including:
 
 The heat pump comes as a monobloc with an outdoor hydrolic unit and an indoor
 controller unit. The controller unit communicates with the hydrolic unit via
-a wire and optionally uses Wifi to connect with the cloud and the (not so
+a wire and optionally uses Wifi to connect to the cloud and the (not so
 great)
 [Android](https://play.google.com/store/apps/details?id=com.cacapp.omnia)
-or [Apple](https://apps.apple.com/nl/app/omnia-smart/id1532349739) app.
+or [Apple](https://apps.apple.com/nl/app/omnia-smart/id1532349739) app, and
+possibly to other devices via some
+[proprietary protocol](https://github.com/georgezhao2010/midea_ac_lan).
 
 The controller also supports [Modbus](https://en.wikipedia.org/wiki/Modbus),
 a serial protocol widely used for building management. This page shows some
