@@ -1,16 +1,4 @@
 sensor:
-#  - platform: modbus_controller
-#    modbus_controller_id: "${prefix}_modbus"
-#    name: "${friendly_prefix} water temperature setpoint (duplicate)"
-#    id: "${prefix}_water_temperature_setpoint_duplicate"
-#    register_type: holding
-#    address: 2
-#    unit_of_measurement: "°C"
-#    value_type: U_WORD
-#    device_class: TEMPERATURE
-#    entity_category: DIAGNOSTIC
-#    bitmask: 0xff
-#    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} silent state"
@@ -32,8 +20,8 @@ sensor:
                   return (int)x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve selected"
-    id: "${prefix}_climate_curve_selected"
+    name: "${friendly_prefix} curve selected R/O"
+    id: "${prefix}_curve_selected_ro"
     register_type: holding
     address: 6
     value_type: U_WORD
@@ -471,6 +459,40 @@ switch:
     entity_category: CONFIG
 
 number:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve selected"
+    id: _curve_selected
+    register_type: holding
+    address: 6
+    value_type: U_WORD
+    mode: slider
+    min_value: 1
+    max_value: 9
+    step: 1
+    entity_category: CONFIG
+    lambda: "return (int)x & 0xff;"
+    write_lambda: |-
+      int writeval = ((int)id(_curve_selected_zone2).state << 8) | (int)x;
+      ESP_LOGI("main", "write curve selection: %d", writeval);
+      return writeval;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve selected zone2"
+    id: _curve_selected_zone2
+    register_type: holding
+    address: 6
+    value_type: U_WORD
+    mode: slider
+    min_value: 1
+    max_value: 9
+    step: 1
+    entity_category: CONFIG
+    lambda: "return (int)x >> 8;"
+    write_lambda: |-
+      int writeval = ((int)x << 8) | (int)id(_curve_selected).state;
+      ESP_LOGI("main", "write curve selection: %d", writeval);
+      return writeval;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} preset setpoint"
