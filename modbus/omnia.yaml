@@ -13,6 +13,25 @@ sensor:
 #    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} silent state"
+    id: "${prefix}_silent_state"
+    register_type: holding
+    address: 5
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    bitmask: 0xc0
+    disabled_by_default: true
+    filters:
+      - delta: 1
+    on_value:
+      then:
+        - select.set_index:
+            id: "${prefix}_silent_mode"
+            index: !lambda |-
+                  ESP_LOGI("main", "change of silent state triggered mode option select: %d", (int)x);
+                  return (int)x;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve selected"
     id: "${prefix}_climate_curve_selected"
     register_type: holding
@@ -371,9 +390,22 @@ select:
       - "normal"
       - "silent level 1"
       - "silent level 2"
+    optimistic: true
     set_action:
-      then:
-        - switch.turn_on: "${prefix}_silent_mode_on_off"
+      - if:
+          condition:
+            lambda: 'return x=="normal";'
+          then:
+            - switch.turn_off: "${prefix}_silent_mode_level1"
+            - switch.turn_off: "${prefix}_silent_mode_level2"
+          else:
+            - if:
+                condition:
+                  lambda: 'return x=="silent level 2";'
+                then:
+                  - switch.turn_on: "${prefix}_silent_mode_level2"
+                else:
+                  - switch.turn_on: "${prefix}_silent_mode_level1"
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"
@@ -407,13 +439,23 @@ switch:
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} silent mode on/off"
-    id: "${prefix}_silent_mode_on_off"
+    name: "${friendly_prefix} silent mode level1"
+    id: "${prefix}_silent_mode_level1"
     icon: "mdi:home-sound-out"
     register_type: holding
     address: 5
     bitmask: 0x40
     entity_category: CONFIG
+    internal: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} silent mode level2"
+    id: "${prefix}_silent_mode_level2"
+    register_type: holding
+    address: 5
+    bitmask: 0x80
+    entity_category: CONFIG
+    internal: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} curve mode"
