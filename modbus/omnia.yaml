@@ -1,3 +1,31 @@
+binary_sensor:
+  # Register address 128(PLC: 40129)
+  # Status bit 1
+  # BIT3 Oil return
+  # BIT2 Anti-freezing
+  # BIT1 Defrosting
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} oil return"
+    register_type: holding
+    address: 128
+    bitmask: 0x8
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} anti-freezing"
+    register_type: holding
+    address: 128
+    bitmask: 0x4
+    entity_category: DIAGNOSTIC
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} defrosting"
+    register_type: holding
+    address: 128
+    bitmask: 0x2
+    entity_category: DIAGNOSTIC
+
 sensor:
   # Register address 5(PLC: 40006)
   # Function Setting
@@ -232,6 +260,20 @@ sensor:
     device_class: DURATION
     unit_of_measurement: h
     disabled_by_default: true
+  # 123 (PLC: 40124)
+  # Unit capacity
+  # 0702 for 200 register is reserved. When it is 071x, data 4-30 means 4-30kW
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} model capacity"
+    register_type: holding
+    address: 123
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+    device_class: POWER
+    unit_of_measurement: kW
+    disabled_by_default: true
+    skip_updates: 720
   # 124(PLC: 40125)
   # Current fault
   # Check the code table for detailed fault codes
@@ -384,6 +426,34 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: .001
+  # Register address 143(PLC: 40144)
+  # Higher bits for electricity consumption
+  # Register address 144(PLC: 40145)
+  # Lower bits for electricity consumption
+  - platform: modbus_controller
+    modbus_controller_id: ${prefix}_modbus
+    name: ${friendly_prefix} energy consumption
+    register_type: holding
+    address: 143
+    value_type: U_DWORD
+    skip_updates: 10
+    unit_of_measurement: kWh
+    device_class: ENERGY
+    state_class: total_increasing
+  # Register address 145(PLC: 40146)
+  # Higher bits for power output
+  # Register address 146(PLC: 40147)
+  # Lower bits for power output
+  - platform: modbus_controller
+    modbus_controller_id: ${prefix}_modbus
+    name: ${friendly_prefix} energy delivered
+    register_type: holding
+    address: 145
+    value_type: U_DWORD
+    skip_updates: 10
+    unit_of_measurement: kWh
+    device_class: ENERGY
+    state_class: total_increasing
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling setpoint upper limit"
@@ -442,6 +512,7 @@ select:
   - platform: template
     name: "${friendly_prefix} silent mode"
     id: "${prefix}_silent_mode"
+    entity_category: CONFIG
     icon: "mdi:home-sound-out"
     options:
       - "normal"
