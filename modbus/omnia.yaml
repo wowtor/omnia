@@ -50,7 +50,7 @@ sensor:
         - select.set_index:
             id: "${prefix}_silent_mode"
             index: !lambda |-
-                  ESP_LOGI("main", "change of silent state triggered mode option select: %d", (int)x);
+                  ESP_LOGD("main", "change of silent state triggered mode option select: %d", (int)x);
                   return (int)x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -608,7 +608,7 @@ number:
     lambda: "return (int)x & 0xff;"
     write_lambda: |-
       int writeval = ((int)id(${prefix}_curve_selected_zone2).state << 8) | (int)x;
-      ESP_LOGI("main", "write curve selection: %d", writeval);
+      ESP_LOGD("main", "write curve selection: %d", writeval);
       return writeval;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -625,7 +625,7 @@ number:
     lambda: "return (int)x >> 8;"
     write_lambda: |-
       int writeval = ((int)x << 8) | (int)id(${prefix}_curve_selected).state;
-      ESP_LOGI("main", "write curve selection: %d", writeval);
+      ESP_LOGD("main", "write curve selection: %d", writeval);
       return writeval;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -769,7 +769,7 @@ text_sensor:
     icon: mdi:alert
     lambda: |-
       uint16_t value = modbus_controller::word_from_hex_str(x, 0);
-      ESP_LOGD("main","Found device status int : %d", value);
+      ESP_LOGD("main","found device status code: %d", value);
       switch (value) {
         case 0:  return std::string("fine");
         case 1:  return std::string("E0: Water flow fault (E8 displayed 3 times)");
