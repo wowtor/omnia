@@ -428,7 +428,7 @@ sensor:
     name: "${friendly_prefix} lifetime COP"
     lambda: |-
         return 100 * id(${prefix}_lifetime_energy_delivered).state / id(${prefix}_lifetime_energy_consumption).state;
-    update_interval: 24h
+    update_interval: 1h
     unit_of_measurement: "%"
     icon: mdi:percent
     accuracy_decimals: 0
@@ -499,8 +499,16 @@ select:
           condition:
             lambda: 'return x=="normal";'
           then:
-            - switch.turn_off: "${prefix}_silent_mode_level1"
-            - switch.turn_off: "${prefix}_silent_mode_level2"
+            - if:
+                condition:
+                  lambda: 'return id(${prefix}_silent_model_level1).state;'
+                then:
+                  - switch.turn_off: "${prefix}_silent_mode_level1"
+            - if:
+                condition:
+                  lambda: 'return id(${prefix}_silent_model_level2).state;'
+                then:
+                  - switch.turn_off: "${prefix}_silent_mode_level2"
           else:
             - if:
                 condition:
