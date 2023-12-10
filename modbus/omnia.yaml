@@ -143,10 +143,6 @@ sensor:
     entity_category: DIAGNOSTIC
     value_type: S_WORD
     accuracy_decimals: 1
-    filters:
-      - sliding_window_moving_average:
-          window_size: 15
-          send_every: 5
   # Register address 108(PLC: 40109) Discharge temperature
   # Compressor discharge temperature Tp unit: °C
   - platform: modbus_controller
