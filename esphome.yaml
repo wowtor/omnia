@@ -93,4 +93,5 @@ text_sensor:
     entity_category: diagnostic
 
 preferences:
-  flash_write_interval: 1000 days
+  # set write interval to maximum (stored as milliseconds in 32bit unsigned int)
+  flash_write_interval: 4294967295 ms
