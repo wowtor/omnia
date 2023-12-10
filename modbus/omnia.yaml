@@ -552,31 +552,6 @@ sensor:
     entity_category: DIAGNOSTIC
     disabled_by_default: true
     skip_updates: 720
-  # Register address 272(PLC: 40273) EMISSION TYPE
-  # Bit12-15: The type of zone 2 end for cooling mode
-  # Bit8-11: The type of zone 1 end for cooling mode
-  # Bit4-7: The type of zone 2 end for heating mode
-  # Bit0-3: The type of zone 1 end for heating mode
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} emission type heating"
-    register_type: holding
-    address: 272
-    value_type: U_WORD
-    bitmask: 0xf
-    entity_category: DIAGNOSTIC
-    disabled_by_default: true
-    skip_updates: 720
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} emission type cooling"
-    register_type: holding
-    address: 272
-    value_type: U_WORD
-    bitmask: 0xf00
-    entity_category: DIAGNOSTIC
-    disabled_by_default: true
-    skip_updates: 720
 
 
 select:
@@ -625,6 +600,94 @@ select:
       cool: 2
       heat: 3
     entity_category: CONFIG
+  - platform: template
+    name: "${friendly_prefix} emission type heating"
+    id: ${prefix}_emission_heat_zone1
+    entity_category: CONFIG
+    options:
+      - "fan coil"
+      - "radiators"
+      - "floor heating"
+    optimistic: true
+    set_action:
+      - lambda: |-
+            int offset = 0;
+            int i = id(${prefix}_emission_heat_zone1).index_of(x).value();
+            int bitmask = 0xffff - (0xf << offset);
+            int old_state = (int)id(${prefix}_emission_type).state;
+            int new_state = (old_state & bitmask) | (i << offset);
+            if (old_state != new_state) {
+              ESP_LOGD("main", "setting emssion type: %d -> %d", old_state, new_state);
+              auto call = id(${prefix}_emission_type).make_call();
+              call.set_value(new_state);
+              call.perform();
+            }
+  - platform: template
+    name: "${friendly_prefix} emission type heating zone2"
+    id: ${prefix}_emission_heat_zone2
+    entity_category: CONFIG
+    options:
+      - "fan coil"
+      - "radiators"
+      - "floor heating"
+    optimistic: true
+    set_action:
+      - lambda: |-
+            int offset = 4;
+            int i = id(${prefix}_emission_heat_zone2).index_of(x).value();
+            int bitmask = 0xffff - (0xf << offset);
+            int old_state = (int)id(${prefix}_emission_type).state;
+            int new_state = (old_state & bitmask) | (i << offset);
+            if (old_state != new_state) {
+              ESP_LOGD("main", "setting emssion type: %d -> %d", old_state, new_state);
+              auto call = id(${prefix}_emission_type).make_call();
+              call.set_value(new_state);
+              call.perform();
+            }
+  - platform: template
+    name: "${friendly_prefix} emission type cooling"
+    id: ${prefix}_emission_cool_zone1
+    entity_category: CONFIG
+    options:
+      - "fan coil"
+      - "radiators"
+      - "floor heating"
+    optimistic: true
+    set_action:
+      - lambda: |-
+            int offset = 8;
+            int i = id(${prefix}_emission_cool_zone1).index_of(x).value();
+            int bitmask = 0xffff - (0xf << offset);
+            int old_state = (int)id(${prefix}_emission_type).state;
+            int new_state = (old_state & bitmask) | (i << offset);
+            if (old_state != new_state) {
+              ESP_LOGD("main", "setting emssion type: %d -> %d", old_state, new_state);
+              auto call = id(${prefix}_emission_type).make_call();
+              call.set_value(new_state);
+              call.perform();
+            }
+  - platform: template
+    name: "${friendly_prefix} emission type cooling zone2"
+    id: ${prefix}_emission_cool_zone2
+    entity_category: CONFIG
+    options:
+      - "fan coil"
+      - "radiators"
+      - "floor heating"
+    optimistic: true
+    set_action:
+      - lambda: |-
+            int offset = 12;
+            int i = id(${prefix}_emission_cool_zone2).index_of(x).value();
+            int bitmask = 0xffff - (0xf << offset);
+            int old_state = (int)id(${prefix}_emission_type).state;
+            int new_state = (old_state & bitmask) | (i << offset);
+            if (old_state != new_state) {
+              ESP_LOGD("main", "setting emssion type: %d -> %d", old_state, new_state);
+              auto call = id(${prefix}_emission_type).make_call();
+              call.set_value(new_state);
+              call.perform();
+            }
 
 switch:
   # Register address 0 (PLC:40001)
@@ -889,6 +952,34 @@ number:
     entity_category: CONFIG
     disabled_by_default: true
     skip_updates: 30
+  # Register address 272(PLC: 40273) EMISSION TYPE
+  # Bit12-15: The type of zone 2 end for cooling mode
+  # Bit8-11: The type of zone 1 end for cooling mode
+  # Bit4-7: The type of zone 2 end for heating mode
+  # Bit0-3: The type of zone 1 end for heating mode
+  # Note: the mapping is (needs checking): 0=fan coil; 1=radiator; 2=floor
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    id: "${prefix}_emission_type"
+    address: 272
+    value_type: U_WORD
+    internal: true
+    skip_updates: 30
+    on_value:
+      then:
+        - select.set_index:
+            id: ${prefix}_emission_heat_zone1
+            index: !lambda "return (int)x & 0xf;"
+        - select.set_index:
+            id: ${prefix}_emission_heat_zone2
+            index: !lambda "return ((int)x & 0xf0) >> 4;"
+        - select.set_index:
+            id: ${prefix}_emission_cool_zone1
+            index: !lambda "return ((int)x & 0xf00) >> 8;"
+        - select.set_index:
+            id: ${prefix}_emission_cool_zone2
+            index: !lambda "return ((int)x & 0xf000) >> 12;"
+
 
 text_sensor:
   - platform: modbus_controller
