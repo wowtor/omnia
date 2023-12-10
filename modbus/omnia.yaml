@@ -621,6 +621,7 @@ select:
   - platform: template
     name: "${friendly_prefix} emission type heating zone2"
     id: ${prefix}_emission_heat_zone2
+    disabled_by_default: true
     entity_category: CONFIG
     options:
       - "fan coil"
@@ -665,6 +666,7 @@ select:
   - platform: template
     name: "${friendly_prefix} emission type cooling zone2"
     id: ${prefix}_emission_cool_zone2
+    disabled_by_default: true
     entity_category: CONFIG
     options:
       - "fan coil"
@@ -706,20 +708,27 @@ switch:
   # bit6-7: see sensor: silent state
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve mode zone2"
+    icon: "mdi:snowflake-thermometer"
+    register_type: holding
+    address: 5
+    bitmask: 0x2000
+    entity_category: CONFIG
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve mode"
+    icon: "mdi:snowflake-thermometer"
+    register_type: holding
+    address: 5
+    bitmask: 0x1000
+    entity_category: CONFIG
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} eco mode"
     icon: "mdi:sprout"
     register_type: holding
     address: 5
     bitmask: 0x400
-    entity_category: CONFIG
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve mode"
-    id: "${prefix}_curve_mode"
-    icon: "mdi:snowflake-thermometer"
-    register_type: holding
-    address: 5
-    bitmask: 0x1000
     entity_category: CONFIG
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -911,8 +920,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve heating setpoint1"
-    id: "${prefix}_curve_heating_setpoint1"
+    name: "${friendly_prefix} heating curve9 setpoint1"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -925,8 +933,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve heating setpoint2"
-    id: "${prefix}_curve_heating_setpoint2"
+    name: "${friendly_prefix} heating curve9 setpoint2"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -939,8 +946,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve heating ambient1"
-    id: "${prefix}_curve_heating_ambient1"
+    name: "${friendly_prefix} heating curve9 ambient1"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -953,8 +959,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve heating ambient2"
-    id: "${prefix}_curve_heating_ambient2"
+    name: "${friendly_prefix} heating curve9 ambient2"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
