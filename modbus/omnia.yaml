@@ -390,6 +390,7 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: .001
+    restore: false
   # Register address 143(PLC: 40144)
   # Higher bits for electricity consumption
   # Register address 144(PLC: 40145)

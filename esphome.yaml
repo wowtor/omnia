@@ -91,3 +91,6 @@ text_sensor:
     hide_timestamp: true
     name: "${friendly_name} ESPHome Version"
     entity_category: diagnostic
+
+preferences:
+  flash_write_interval: 1000 days
