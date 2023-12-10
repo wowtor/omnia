@@ -865,8 +865,24 @@ number:
     min_value: 5
     max_value: 60
     step: 1
-    disabled_by_default: true
     skip_updates: 30
+  # Register address 224(PLC: 40225) dT1SC
+  # Default setting: 5°C, range: 2~10°C, setting interval: 1°C
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling water temperature delta"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 224
+    value_type: U_WORD
+    min_value: 2
+    max_value: 10
+    step: 1
+    skip_updates: 30
+  # Register address 228(PLC: 40229) t_interval_H
+  # Time interval of compressor start-up in the heating mode; range: 5~5 min,
+  # default setting: 5 min
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating mode compressor startup interval"
@@ -878,7 +894,20 @@ number:
     min_value: 5
     max_value: 60
     step: 1
-    disabled_by_default: true
+    skip_updates: 30
+  # Register address 229(PLC: 40230) dT1SH
+  # Default setting: 5°C, range: 2-20°C;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} heating water temperature delta"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 229
+    value_type: U_WORD
+    min_value: 2
+    max_value: 10
+    step: 1
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
