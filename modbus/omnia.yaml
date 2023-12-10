@@ -920,7 +920,8 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} heating curve9 setpoint1"
+    name: "${friendly_prefix} heating curve9 low setpoint"
+    icon: "mdi:thermometer-water"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -933,7 +934,8 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} heating curve9 setpoint2"
+    name: "${friendly_prefix} heating curve9 high setpoint"
+    icon: "mdi:thermometer-water"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -946,7 +948,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} heating curve9 ambient1"
+    name: "${friendly_prefix} heating curve9 low ambient"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
@@ -959,7 +961,7 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} heating curve9 ambient2"
+    name: "${friendly_prefix} heating curve9 high ambient"
     device_class: TEMPERATURE
     unit_of_measurement: "°C"
     entity_category: CONFIG
