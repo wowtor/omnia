@@ -142,7 +142,7 @@ sensor:
     unit_of_measurement: "°C"
     entity_category: DIAGNOSTIC
     value_type: S_WORD
-    accuracy_decimals: 1
+    accuracy_decimals: 0
   # Register address 108(PLC: 40109) Discharge temperature
   # Compressor discharge temperature Tp unit: °C
   - platform: modbus_controller
