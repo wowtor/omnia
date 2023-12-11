@@ -87,6 +87,8 @@ sensor:
     unit_of_measurement: "r/min"
     value_type: U_WORD
     entity_category: DIAGNOSTIC
+    filters:
+      - timeout: 5min
   # 104(PLC: 40105) Water inlet temperature
   # TW_in, unit: °C
   - platform: modbus_controller
@@ -99,6 +101,8 @@ sensor:
     icon: "mdi:thermometer-water"
     value_type: U_WORD
     entity_category: DIAGNOSTIC
+    filters:
+      - timeout: 5min
   # Register address 105(PLC: 40106) Water outlet temperature
   # TW_out, unit: °C
   - platform: modbus_controller
@@ -111,6 +115,8 @@ sensor:
     icon: "mdi:thermometer-water"
     value_type: U_WORD
     entity_category: DIAGNOSTIC
+    filters:
+      - timeout: 5min
   # Register address 107(PLC: 40108) T4 Temperature
   # Outdoor ambient temperature unit: °C
   - platform: modbus_controller
@@ -123,6 +129,8 @@ sensor:
     entity_category: DIAGNOSTIC
     value_type: S_WORD
     accuracy_decimals: 0
+    filters:
+      - timeout: 30min
   # Register address 110(PLC: 40111) T1
   # System total water outlet temperature (behind the auxiliary heater) ,unit: °C
   - platform: modbus_controller
@@ -135,6 +143,8 @@ sensor:
     entity_category: DIAGNOSTIC
     value_type: U_WORD
     disabled_by_default: true
+    filters:
+      - timeout: 5min
   # 119 (PLC: 40120) Outdoor unit voltage
   # Outdoor unit voltage, unit: V
   - platform: modbus_controller
@@ -148,11 +158,13 @@ sensor:
     device_class: VOLTAGE
     unit_of_measurement: V
     disabled_by_default: true
+    filters:
+      - timeout: 5min
   # 122 (PLC: 40123) Compressor operation time
   # Compressor operating time in hour
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} operating time"
+    name: "${friendly_prefix} lifetime operation"
     register_type: holding
     address: 122
     entity_category: DIAGNOSTIC
@@ -160,6 +172,8 @@ sensor:
     device_class: DURATION
     unit_of_measurement: h
     disabled_by_default: true
+    filters:
+      - timeout: 5min
   # 123 (PLC: 40124) Unit capacity
   # 0702 for 200 register is reserved. When it is 071x, data 4-30 means 4-30kW
   - platform: modbus_controller
@@ -182,6 +196,8 @@ sensor:
     address: 124
     entity_category: DIAGNOSTIC
     value_type: U_WORD
+    filters:
+      - timeout: 5min
   # Register address 130(PLC: 40131) Software version
   # 1~99 is the software version of hydronic module
   - platform: modbus_controller
