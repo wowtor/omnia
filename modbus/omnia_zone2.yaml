@@ -1,0 +1,73 @@
+# Listing of entities that only apply to dual zone configurations.
+
+sensor:
+  # Register address 111(PLC: 40112) Tw2
+  # Zone 2 water flow temperature , unit: °C
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} system water outlet temperature zone2"
+    register_type: holding
+    address: 111
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+    disabled_by_default: true
+  # Register address 112(PLC: 40113) T2
+  # Refrigerant liquid side temperature, unit: °C
+  # Register address 137(PLC: 40138) Climate curve T1S calculated value 2
+  # The corresponding calculated T1S of zone 2
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve calculated setpoint zone2"
+    register_type: holding
+    address: 137
+    entity_category: DIAGNOSTIC
+    value_type: U_WORD
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    disabled_by_default: true
+    filters:
+      - filter_out: 0xff
+      - timeout: 5min
+
+switch:
+  # Register address 5 (PLC: 40006)
+  # Function Setting
+  # BIT13 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone2)
+  # BIT12 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone1)
+  # BIT10 ECO mode
+  # bit6-7: see sensor: silent state
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} curve mode zone2"
+    icon: "mdi:snowflake-thermometer"
+    register_type: holding
+    address: 5
+    bitmask: 0x2000
+    entity_category: CONFIG
+
+number:
+  # Register address 12(PLC: 40013) T1S
+  # Water temperature T1S is corresponding to the floor heating. (zone 2)
+  # In cooling mode,
+  #   T1S low temp setting range is 5~25°C;
+  #   T1S high temp setting range is 18~25°C.
+  # In heating mode,
+  #   T1S low temp setting range is 25~55°C;
+  #   T1S high temp setting range is 35~65°C.
+  # Note: high/low range setting depends on emission system (floor/radiators)
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} preset setpoint zone2"
+    icon: "mdi:thermometer-water"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 12
+    value_type: U_WORD
+    min_value: 5
+    max_value: 55
+    step: 1
+    skip_updates: 30
+    disabled_by_default: true
