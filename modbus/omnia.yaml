@@ -754,15 +754,11 @@ text_sensor:
     address: 101
     entity_category: DIAGNOSTIC
     raw_encode: HEXBYTES
-    lambda: |-
-      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
-      ESP_LOGD("main","Found hvac mode code: %d", value);
-      switch (value) {
-        case 0:  return std::string("off");
-        case 2:  return std::string("cool");
-        case 3:  return std::string("heat");
-        default: return x;
-      }
+    filters:
+      - map:
+          - 0000 -> off
+          - 0002 -> cool
+          - 0003 -> heat
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} status"
@@ -770,64 +766,62 @@ text_sensor:
     register_type: holding
     address: 124
     entity_category: DIAGNOSTIC
-    raw_encode: HEXBYTES
+    raw_encode: COMMA
     icon: mdi:alert
-    lambda: |-
-      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
-      ESP_LOGD("main","found device status code: %d", value);
-      switch (value) {
-        case 0:  return std::string("fine");
-        case 1:  return std::string("E0: Water flow fault (E8 displayed 3 times)");
-        case 2:  return std::string("E1: Phase loss or neutral wire and live wire are connected");
-        case 3:  return std::string("E2: Communication fault between controller and hydraulic");
-        case 4:  return std::string("E3: Final outlet water temperature sensor (T1) fault");
-        case 5:  return std::string("E4: Water tank temp. sensor (T5) fault");
-        case 6:  return std::string("E5: The condensor outlet refrigerant temperature sensor (T3)");
-        case 7:  return std::string("E6: The ambient temperature sensor (T4) fault");
-        case 8:  return std::string("E7: Buffer tank up temperature sensor (Tbt1) fault");
-        case 9:  return std::string("E8: Water flow failure");
-        case 10: return std::string("E9: Compressor suction temp. sensor (Th) fault");
-        case 11: return std::string("Ea: Compressor discharge temp. sensor (Tp) fault");
-        case 12: return std::string("Eb: Solar temp. sensor (Tsolar) fault");
-        case 13: return std::string("Ec: The balance tank low temp. sensor (Tbt2) fault");
-        case 14: return std::string("Ed: The plate exchanger water inlet temp. sensor (Tw_in) fault");
-        case 15: return std::string("Ee: The main control board of hydraulic module EEPROM");
-        case 20: return std::string("P0: Low pressure protection");
-        case 21: return std::string("P1: High pressure protection");
-        case 23: return std::string("P3: Compressor overcurrent protection");
-        case 24: return std::string("P4: compressor discharge temp. too high protection");
-        case 25: return std::string("P5: high temperature difference protection between water inlet and water outlet of the plate heat exchanger");
-        case 26: return std::string("P6: inverter module protection");
-        case 31: return std::string("Pb: Anti-freeze mode protection");
-        case 33: return std::string("Pd: high temperature protection of refrigerant outlet temp. of condenser");
-        case 38: return std::string("Pp: water inlet temperature is higher than water outlet in heating mode");
-        case 39: return std::string("H0: communication fault between main control board of hydraulic module and main control board PCB B");
-        case 40: return std::string("H1");
-        case 41: return std::string("H2");
-        case 42: return std::string("H3");
-        case 43: return std::string("H4");
-        case 44: return std::string("H5");
-        case 45: return std::string("H6: DC fan motor fault");
-        case 46: return std::string("H7: main circuit voltage protection fault");
-        case 47: return std::string("H8: pressure sensor fault");
-        case 48: return std::string("H9");
-        case 49: return std::string("Ha");
-        case 50: return std::string("Hb");
-        case 52: return std::string("Hd");
-        case 53: return std::string("He");
-        case 54: return std::string("Hf: inverter module board EE PROM fault");
-        case 55: return std::string("Hh");
-        case 57: return std::string("Hp");
-        case 65: return std::string("C7");
-        case 112:return std::string("bH");
-        case 116:return std::string("F1");
-        case 134:return std::string("L0: DC compressor inverter module fault");
-        case 135:return std::string("L1: DC bus low voltage protection (from inverter module mostly when compressor running)");
-        case 136:return std::string("L2: DC bus high voltage protection from DC driver");
-        case 138:return std::string("L4: MCE fault");
-        case 139:return std::string("L5: Zero speed protection");
-        case 141:return std::string("L7: Phase sequence fault");
-        case 142:return std::string("L8: Compressor frequency variation greater than 15Hz within one second protection");
-        case 143:return std::string("L9: Actual compressor frequency differs from target frequency by more than 15Hz protection");
-        default: return x;
-      }
+    filters:
+      - substitute:
+          - 0, ->
+      - map:
+          - 0   -> fine
+          - 1   -> E0 Water flow fault (E8 displayed 3 times)
+          - 2   -> E1 Phase loss or neutral wire and live wire are connected
+          - 3   -> E2 Communication fault between controller and hydraulic
+          - 4   -> E3 Final outlet water temperature sensor (T1) fault
+          - 5   -> E4 Water tank temp. sensor (T5) fault
+          - 6   -> E5 The condensor outlet refrigerant temperature sensor (T3)
+          - 7   -> E6 The ambient temperature sensor (T4) fault
+          - 8   -> E7 Buffer tank up temperature sensor (Tbt1) fault
+          - 9   -> E8 Water flow failure
+          - 10  -> E9 Compressor suction temp. sensor (Th) fault
+          - 11  -> Ea Compressor discharge temp. sensor (Tp) fault
+          - 12  -> Eb Solar temp. sensor (Tsolar) fault
+          - 13  -> Ec The balance tank low temp. sensor (Tbt2) fault
+          - 14  -> Ed The plate exchanger water inlet temp. sensor (Tw_in) fault
+          - 15  -> Ee The main control board of hydraulic module EEPROM
+          - 20  -> P0 Low pressure protection
+          - 21  -> P1 High pressure protection
+          - 23  -> P3 Compressor overcurrent protection
+          - 24  -> P4 compressor discharge temp. too high protection
+          - 25  -> P5 high temperature difference protection between water inlet and water outlet of the plate heat exchanger
+          - 26  -> P6 inverter module protection
+          - 31  -> Pb Anti-freeze mode protection
+          - 33  -> Pd high temperature protection of refrigerant outlet temp. of condenser
+          - 38  -> Pp water inlet temperature is higher than water outlet in heating mode
+          - 39  -> H0 communication fault between main control board of hydraulic module and main control board PCB B
+          - 40  -> H1
+          - 41  -> H2
+          - 42  -> H3
+          - 43  -> H4
+          - 44  -> H5
+          - 45  -> H6 DC fan motor fault
+          - 46  -> H7 main circuit voltage protection fault
+          - 47  -> H8 pressure sensor fault
+          - 48  -> H9
+          - 49  -> Ha
+          - 50  -> Hb
+          - 52  -> Hd
+          - 53  -> He
+          - 54  -> Hf inverter module board EE PROM fault
+          - 55  -> Hh
+          - 57  -> Hp
+          - 65  -> C7
+          - 112 -> bH
+          - 116 -> F1
+          - 134 -> L0 DC compressor inverter module fault
+          - 135 -> L1 DC bus low voltage protection (from inverter module mostly when compressor running)
+          - 136 -> L2 DC bus high voltage protection from DC driver
+          - 138 -> L4 MCE fault
+          - 139 -> L5 Zero speed protection
+          - 141 -> L7 Phase sequence fault
+          - 142 -> L8 Compressor frequency variation greater than 15Hz within one second protection
+          - 143 -> L9 Actual compressor frequency differs from target frequency by more than 15Hz protection
