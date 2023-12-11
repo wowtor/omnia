@@ -422,6 +422,7 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: .01
+      - timeout: 5min
     entity_category: DIAGNOSTIC
     disabled_by_default: true
   # Register address 140(PLC: 40141) Ability of Hydraulic module
@@ -866,13 +867,14 @@ number:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} cooling mode compressor startup interval"
+    disabled_by_default: true
     device_class: DURATION
     unit_of_measurement: min
     entity_category: CONFIG
     address: 223
     value_type: U_WORD
     min_value: 5
-    max_value: 60
+    max_value: 6
     step: 1
     skip_updates: 30
   # Register address 224(PLC: 40225) dT1SC
@@ -895,13 +897,14 @@ number:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating mode compressor startup interval"
+    disabled_by_default: true
     device_class: DURATION
     unit_of_measurement: min
     entity_category: CONFIG
     address: 228
     value_type: U_WORD
     min_value: 5
-    max_value: 60
+    max_value: 6
     step: 1
     skip_updates: 30
   # Register address 229(PLC: 40230) dT1SH
