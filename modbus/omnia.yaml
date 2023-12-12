@@ -524,7 +524,6 @@ switch:
   # Actual interpretation bits 7, 6: 00=off; 01=level1; 10=level2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: ${friendly_prefix} curve mode
     id: ${prefix}_mode_curve_zone1
     register_type: holding
     address: 5
@@ -537,7 +536,6 @@ switch:
         - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: ${friendly_prefix} eco mode
     id: ${prefix}_mode_curve_eco
     register_type: holding
     address: 5
@@ -550,7 +548,6 @@ switch:
         - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: ${friendly_prefix} mode silent1
     id: ${prefix}_mode_silent1
     register_type: holding
     address: 5
@@ -563,7 +560,6 @@ switch:
         - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: ${friendly_prefix} mode silent2
     id: ${prefix}_mode_silent2
     register_type: holding
     address: 5
