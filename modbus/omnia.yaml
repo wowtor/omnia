@@ -29,40 +29,6 @@ binary_sensor:
     entity_category: DIAGNOSTIC
 
 sensor:
-  # Register address 5(PLC: 40006)
-  # Function Setting
-  # BIT7 0: Silent mode level1; 1: Silent mode level2
-  # BIT6 Silent mode
-  # Actual interpretation: 0=off; 1=level1; 2=level2
-  # NB: workaround for silent mode by lack of select/number bitmask
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} silent state"
-    id: "${prefix}_silent_state"
-    register_type: holding
-    address: 5
-    value_type: U_WORD
-    entity_category: DIAGNOSTIC
-    bitmask: 0xc0
-    disabled_by_default: true
-    filters:
-      - delta: 1
-    on_value:
-      then:
-        - select.set_index:
-            id: "${prefix}_silent_mode"
-            index: !lambda |-
-                  ESP_LOGD("main", "change of silent state triggered mode option select: %d", (int)x);
-                  return (int)x;
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve selected"
-    register_type: holding
-    address: 6
-    value_type: U_WORD
-    entity_category: DIAGNOSTIC
-    bitmask: 0xff
-    disabled_by_default: true
   # Register address 100 (PLC: 40101)
   # Operating frequency
   # Compressor operating frequency in Hz
@@ -378,38 +344,59 @@ sensor:
 
 select:
   - platform: template
-    name: "${friendly_prefix} silent mode"
-    id: "${prefix}_silent_mode"
+    name: ${friendly_name} setpoint mode
+    id: ${prefix}_setpoint_mode
     entity_category: CONFIG
-    icon: "mdi:home-sound-out"
     options:
-      - "normal"
-      - "silent level 1"
-      - "silent level 2"
-    optimistic: true
+      - climate curve
+      - climate curve eco
+      - preset
+      - preset silent
+      - preset more silent
+    lambda: |-
+      if (id(${prefix}_mode_curve_zone1).state)
+        return to_string("climate curve");
+      else if (id(${prefix}_mode_curve_eco).state)
+        return to_string("climate curve eco");
+      else if (id(${prefix}_mode_silent1).state)
+        return to_string("preset silent");
+      else if (id(${prefix}_mode_silent2).state)
+        return to_string("preset more silent");
+      else
+        return to_string("preset");
     set_action:
       - if:
           condition:
-            lambda: 'return x=="normal";'
+            lambda: 'return !id(${prefix}_enable).state;'
           then:
             - if:
                 condition:
-                  lambda: 'return id(${prefix}_silent_mode_level1).state;'
+                  lambda: 'return x=="climate curve";'
                 then:
-                  - switch.turn_off: "${prefix}_silent_mode_level1"
+                  - switch.turn_on: ${prefix}_mode_curve_zone1
             - if:
                 condition:
-                  lambda: 'return id(${prefix}_silent_mode_level2).state;'
+                  lambda: 'return x=="climate curve eco";'
                 then:
-                  - switch.turn_off: "${prefix}_silent_mode_level2"
-          else:
+                  - switch.turn_on: ${prefix}_mode_curve_eco
             - if:
                 condition:
-                  lambda: 'return x=="silent level 2";'
+                  lambda: 'return x=="preset";'
                 then:
-                  - switch.turn_on: "${prefix}_silent_mode_level2"
-                else:
-                  - switch.turn_on: "${prefix}_silent_mode_level1"
+                  - switch.turn_off: ${prefix}_mode_curve_zone1
+                  - switch.turn_off: ${prefix}_mode_curve_eco
+                  - switch.turn_off: ${prefix}_mode_silent1
+                  - switch.turn_off: ${prefix}_mode_silent2
+            - if:
+                condition:
+                  lambda: 'return x=="preset silent";'
+                then:
+                  - switch.turn_on: ${prefix}_mode_silent1
+            - if:
+                condition:
+                  lambda: 'return x=="preset more silent";'
+                then:
+                  - switch.turn_on: ${prefix}_mode_silent2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"
@@ -530,41 +517,63 @@ switch:
   # Function Setting
   # BIT13 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone2)
   # BIT12 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone1)
+  # BIT11 DHW pump's running constant-temperature water recycling
   # BIT10 ECO mode
-  # bit6-7: see sensor: silent state
+  # BIT7 0: Silent mode level1; 1: Silent mode level2
+  # BIT6 Silent mode
+  # Actual interpretation bits 7, 6: 00=off; 01=level1; 10=level2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} curve mode"
-    icon: "mdi:snowflake-thermometer"
+    name: ${friendly_prefix} curve mode
+    id: ${prefix}_mode_curve_zone1
     register_type: holding
     address: 5
     bitmask: 0x1000
-    entity_category: CONFIG
+    on_turn_on:
+      then:
+        - component.update: ${prefix}_setpoint_mode
+    on_turn_off:
+      then:
+        - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} eco mode"
-    icon: "mdi:sprout"
+    name: ${friendly_prefix} eco mode
+    id: ${prefix}_mode_curve_eco
     register_type: holding
     address: 5
     bitmask: 0x400
-    entity_category: CONFIG
+    on_turn_on:
+      then:
+        - component.update: ${prefix}_setpoint_mode
+    on_turn_off:
+      then:
+        - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    id: "${prefix}_silent_mode_level1"
-    icon: "mdi:home-sound-out"
+    name: ${friendly_prefix} mode silent1
+    id: ${prefix}_mode_silent1
     register_type: holding
     address: 5
     bitmask: 0x40
-    entity_category: CONFIG
-    internal: true
+    on_turn_on:
+      then:
+        - component.update: ${prefix}_setpoint_mode
+    on_turn_off:
+      then:
+        - component.update: ${prefix}_setpoint_mode
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    id: "${prefix}_silent_mode_level2"
+    name: ${friendly_prefix} mode silent2
+    id: ${prefix}_mode_silent2
     register_type: holding
     address: 5
     bitmask: 0x80
-    entity_category: CONFIG
-    internal: true
+    on_turn_on:
+      then:
+        - component.update: ${prefix}_setpoint_mode
+    on_turn_off:
+      then:
+        - component.update: ${prefix}_setpoint_mode
 
 number:
   # Register address 6 (PLC: 40007)
