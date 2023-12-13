@@ -344,59 +344,70 @@ sensor:
 
 select:
   - platform: template
-    name: ${friendly_name} setpoint mode
-    id: ${prefix}_setpoint_mode
+    name: ${friendly_prefix} water setpoint mode
     entity_category: CONFIG
     options:
+      - preset
       - climate curve
       - climate curve eco
-      - preset
-      - preset silent
-      - preset more silent
     lambda: |-
-      if (id(${prefix}_mode_curve_zone1).state)
-        return to_string("climate curve");
-      else if (id(${prefix}_mode_curve_eco).state)
+      esphome::modbus_controller::ModbusNumber *number = id(${prefix}_function);
+      int state = (int)number->state;
+      if (state & (1 << 10))
         return to_string("climate curve eco");
-      else if (id(${prefix}_mode_silent1).state)
-        return to_string("preset silent");
-      else if (id(${prefix}_mode_silent2).state)
-        return to_string("preset more silent");
+      else if (state & (1 << 12))
+        return to_string("climate curve");
       else
         return to_string("preset");
     set_action:
-      - if:
-          condition:
-            lambda: 'return !id(${prefix}_enable).state;'
-          then:
-            - if:
-                condition:
-                  lambda: 'return x=="climate curve";'
-                then:
-                  - switch.turn_on: ${prefix}_mode_curve_zone1
-            - if:
-                condition:
-                  lambda: 'return x=="climate curve eco";'
-                then:
-                  - switch.turn_on: ${prefix}_mode_curve_eco
-            - if:
-                condition:
-                  lambda: 'return x=="preset";'
-                then:
-                  - switch.turn_off: ${prefix}_mode_curve_zone1
-                  - switch.turn_off: ${prefix}_mode_curve_eco
-                  - switch.turn_off: ${prefix}_mode_silent1
-                  - switch.turn_off: ${prefix}_mode_silent2
-            - if:
-                condition:
-                  lambda: 'return x=="preset silent";'
-                then:
-                  - switch.turn_on: ${prefix}_mode_silent1
-            - if:
-                condition:
-                  lambda: 'return x=="preset more silent";'
-                then:
-                  - switch.turn_on: ${prefix}_mode_silent2
+      - lambda: |-
+          auto number = id(${prefix}_function);
+          int state = (int)number->state;
+          state &= 0xffff - (1 << 13) - (1 << 12) - (1 << 10);
+          if (x == "climate curve") {
+            state |= 1 << 13;
+            state |= 1 << 12;
+          } else if (x == "climate curve eco") {
+            state |= 1 << 13;
+            state |= 1 << 12;
+            state |= 1 << 10;
+          }
+          auto call = number->make_call();
+          call.set_value(state);
+          call.perform();
+  - platform: template
+    name: ${friendly_prefix} silent mode
+    entity_category: CONFIG
+    options:
+      - normal
+      - silent
+      - more silent
+    lambda: |-
+      esphome::modbus_controller::ModbusNumber *number = id(${prefix}_function);
+      int state = (int)number->state;
+      if (state & (1 << 6)) {
+        if (state & (1 << 7))
+          return to_string("more silent");
+        else
+          return to_string("silent");
+      } else {
+        return to_string("normal");
+      }
+    set_action:
+      - lambda: |-
+          auto number = id(${prefix}_function);
+          int state = (int)number->state;
+          // unset both silent bits to set them later
+          state &= 0xffff - (1 << 6) - (1 << 7);
+          if (x == "silent")
+            state |= 1 << 6;
+          else if (x == "more silent") {
+            state |= 1 << 6;
+            state |= 1 << 7;
+          }
+          auto call = number->make_call();
+          call.set_value(state);
+          call.perform();
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} HVAC mode"
@@ -513,6 +524,8 @@ switch:
     register_type: holding
     address: 0
     bitmask: 2
+
+number:
   # Register address 5 (PLC: 40006)
   # Function Setting
   # BIT13 1: climate curve setting is valid; 0: climate curve setting is invalid. (zone2)
@@ -521,57 +534,26 @@ switch:
   # BIT10 ECO mode
   # BIT7 0: Silent mode level1; 1: Silent mode level2
   # BIT6 Silent mode
-  # Actual interpretation bits 7, 6: 00=off; 01=level1; 10=level2
+  # Note: internal use only; should not be exposed to UI
+  # Note: this variable will refuse to commit changes if device is active
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    id: ${prefix}_mode_curve_zone1
+    name: ${friendly_prefix} function
+    id: ${prefix}_function
+    disabled_by_default: true
     register_type: holding
     address: 5
-    bitmask: 0x1000
-    on_turn_on:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-    on_turn_off:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    id: ${prefix}_mode_curve_eco
-    register_type: holding
-    address: 5
-    bitmask: 0x400
-    on_turn_on:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-    on_turn_off:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    id: ${prefix}_mode_silent1
-    register_type: holding
-    address: 5
-    bitmask: 0x40
-    on_turn_on:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-    on_turn_off:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    id: ${prefix}_mode_silent2
-    register_type: holding
-    address: 5
-    bitmask: 0x80
-    on_turn_on:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-    on_turn_off:
-      then:
-        - component.update: ${prefix}_setpoint_mode
-
-number:
+    step: 1
+    mode: box
+    write_lambda: |-
+      if (id(${prefix}_enable).state) {
+        ESP_LOGI("main", "refuse to write function code: %.0f", x);
+        id(${prefix}_
+        return {};
+      } else {
+        ESP_LOGI("main", "write function code: %.0f", x);
+        return x;
+      }
   # Register address 6 (PLC: 40007)
   # Curve Selection
   # Bit8-Bit15 Climate Curve 1-9(zone 2)
