@@ -216,6 +216,10 @@ sensor:
       - timeout: 5min
     entity_category: DIAGNOSTIC
     disabled_by_default: true
+    on_value_range:
+      - below: 0
+        then:
+          - switch.turn_off: "${prefix}_enable"
   # Register address 140(PLC: 40141) Ability of Hydraulic module
   # The actual value*100, unit: kW
   - platform: modbus_controller
@@ -230,10 +234,6 @@ sensor:
     accuracy_decimals: 0
     filters:
       - multiply: 10
-    on_value_range:
-      - below: 0
-        then:
-          - switch.turn_off: "${prefix}_enable"
   - platform: integration
     name: "${friendly_prefix} energy delivered"
     sensor: "${prefix}_output_power"
@@ -548,7 +548,6 @@ number:
     write_lambda: |-
       if (id(${prefix}_enable).state) {
         ESP_LOGI("main", "refuse to write function code: %.0f", x);
-        id(${prefix}_
         return {};
       } else {
         ESP_LOGI("main", "write function code: %.0f", x);
@@ -738,6 +737,7 @@ text_sensor:
     name: "${friendly_prefix} current HVAC mode"
     id: "${prefix}_current_hvac_mode"
     register_type: holding
+    register_count: 1
     address: 101
     entity_category: DIAGNOSTIC
     raw_encode: HEXBYTES
