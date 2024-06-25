@@ -738,10 +738,15 @@ text_sensor:
     id: "${prefix}_current_hvac_mode"
     register_type: holding
     register_count: 1
+    response_size: 2
     address: 101
     entity_category: DIAGNOSTIC
     raw_encode: HEXBYTES
     filters:
+      - lambda: |-
+          # there appears to be a bug in esphome causing too many bytes to be
+          # read; see https://github.com/esphome/issues/issues/5468
+          return x.substr(0, 4);
       - map:
           - 0000 -> off
           - 0002 -> cool
