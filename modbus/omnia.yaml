@@ -288,9 +288,12 @@ sensor:
     icon: mdi:percent
     accuracy_decimals: 0
     entity_category: DIAGNOSTIC
+  # Register address 201(PLC: 40202)
+  # Temperature upper limit of T1S cooling
+  # Lower 8 bits are for zone 1. higher 8 bits are for zone 2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} maximum cooling setpoint"
+    name: "${friendly_prefix} cooling maximum setpoint"
     id: ${prefix}_max_cool_setpoint
     register_type: holding
     address: 201
@@ -301,9 +304,12 @@ sensor:
     entity_category: DIAGNOSTIC
     disabled_by_default: true
     skip_updates: 720
+  # Register address 202(PLC: 40203)
+  # Temperature lower limit of T1S cooling
+  # Lower 8 bits are for zone 1. higher 8 bits are for zone 2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} minimum cooling setpoint"
+    name: "${friendly_prefix} cooling minimum setpoint"
     id: ${prefix}_min_cool_setpoint
     register_type: holding
     address: 202
@@ -314,9 +320,12 @@ sensor:
     entity_category: DIAGNOSTIC
     disabled_by_default: true
     skip_updates: 720
+  # Register address 203(PLC: 40204)
+  # Temperature upper limit of T1S heating
+  # Lower 8 bits are for zone 1. higher 8 bits are for zone 2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} maximum heating setpoint"
+    name: "${friendly_prefix} heating maximum setpoint"
     id: ${prefix}_max_heat_setpoint
     register_type: holding
     address: 203
@@ -327,9 +336,12 @@ sensor:
     entity_category: DIAGNOSTIC
     disabled_by_default: true
     skip_updates: 720
+  # Register address 204(PLC: 40205)
+  # Temperature lower limit of T1S heating
+  # Lower 8 bits are for zone 1. higher 8 bits are for zone 2
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} minimum heating setpoint"
+    name: "${friendly_prefix} heating minimum setpoint"
     id: ${prefix}_min_heat_setpoint
     register_type: holding
     address: 204
@@ -427,7 +439,7 @@ select:
     options:
       - "fan coil"
       - "radiators"
-      - "floor heating"
+      - "floor"
     optimistic: true
     set_action:
       - lambda: |-
@@ -450,7 +462,7 @@ select:
     options:
       - "fan coil"
       - "radiators"
-      - "floor heating"
+      - "floor"
     optimistic: true
     set_action:
       - lambda: |-
@@ -466,7 +478,7 @@ select:
               call.perform();
             }
   - platform: template
-    name: "${friendly_prefix} emission type cooling"
+    name: "${friendly_prefix} cooling emission type"
     id: ${prefix}_emission_cool_zone1
     entity_category: CONFIG
     options:
@@ -488,7 +500,7 @@ select:
               call.perform();
             }
   - platform: template
-    name: "${friendly_prefix} emission type cooling zone2"
+    name: "${friendly_prefix} cooling emission type zone2"
     id: ${prefix}_emission_cool_zone2
     disabled_by_default: true
     entity_category: CONFIG
@@ -650,6 +662,60 @@ number:
     skip_updates: 30
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling curve9 low setpoint"
+    icon: "mdi:thermometer-water"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 261
+    value_type: U_WORD
+    min_value: 5
+    max_value: 25
+    step: 1
+    disabled_by_default: true
+    skip_updates: 30
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling curve9 high setpoint"
+    icon: "mdi:thermometer-water"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 262
+    value_type: U_WORD
+    min_value: 5
+    max_value: 25
+    step: 1
+    disabled_by_default: true
+    skip_updates: 30
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling curve9 low ambient"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 263
+    value_type: S_WORD
+    min_value: -5
+    max_value: 45
+    step: 1
+    disabled_by_default: true
+    skip_updates: 30
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} cooling curve9 high ambient"
+    device_class: TEMPERATURE
+    unit_of_measurement: "°C"
+    entity_category: CONFIG
+    address: 264
+    value_type: S_WORD
+    min_value: -5
+    max_value: 45
+    step: 1
+    disabled_by_default: true
+    skip_updates: 30
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} heating curve9 low setpoint"
     icon: "mdi:thermometer-water"
     device_class: TEMPERATURE
@@ -743,9 +809,9 @@ text_sensor:
     entity_category: DIAGNOSTIC
     raw_encode: HEXBYTES
     filters:
+      # there appears to be a bug in esphome causing too many bytes to be
+      # read; see https://github.com/esphome/issues/issues/5468
       - lambda: |-
-          # there appears to be a bug in esphome causing too many bytes to be
-          # read; see https://github.com/esphome/issues/issues/5468
           return x.substr(0, 4);
       - map:
           - 0000 -> off
