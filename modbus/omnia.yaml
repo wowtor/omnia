@@ -356,7 +356,7 @@ sensor:
 
 select:
   - platform: template
-    name: ${friendly_prefix} water setpoint mode
+    name: ${friendly_prefix} setpoint mode
     entity_category: CONFIG
     options:
       - preset
@@ -433,7 +433,7 @@ select:
       heat: 3
     entity_category: CONFIG
   - platform: template
-    name: "${friendly_prefix} emission type heating"
+    name: "${friendly_prefix} heating emission type"
     id: ${prefix}_emission_heat_zone1
     entity_category: CONFIG
     options:
@@ -455,7 +455,7 @@ select:
               call.perform();
             }
   - platform: template
-    name: "${friendly_prefix} emission type heating zone2"
+    name: "${friendly_prefix} heating emission type zone2"
     id: ${prefix}_emission_heat_zone2
     disabled_by_default: true
     entity_category: CONFIG
