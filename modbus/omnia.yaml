@@ -631,7 +631,7 @@ number:
       if (id(${prefix}_hvac_mode).state == "cool") {
         min_value = id(${prefix}_min_cool_setpoint).state;
         max_value = id(${prefix}_max_cool_setpoint).state;
-      } else if (id(${prefix}_hvac_mode).state == "cool") {
+      } else if (id(${prefix}_hvac_mode).state == "heat") {
         min_value = id(${prefix}_min_heat_setpoint).state;
         max_value = id(${prefix}_max_heat_setpoint).state;
       } else {
