@@ -1,8 +1,7 @@
 sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} supply pressure"
-    id: "${prefix}_supply_pressure"
+    name: "${friendly_prefix} inlet pressure"
     register_type: read
     address: 4023
     value_type: S_WORD
@@ -15,7 +14,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust pressure"
-    id: "${prefix}_exhaust_pressure"
     register_type: read
     address: 4024
     value_type: S_WORD
@@ -27,8 +25,7 @@ sensor:
     entity_category: DIAGNOSTIC
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} supply flow"
-    id: "${prefix}_supply_flow"
+    name: "${friendly_prefix} inlet flow"
     register_type: read
     address: 4032
     value_type: U_WORD
@@ -37,8 +34,7 @@ sensor:
     icon: "mdi:weather-windy"
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} supply fan"
-    id: "${prefix}_supply_fan"
+    name: "${friendly_prefix} inlet fan"
     register_type: read
     address: 4034
     value_type: U_WORD
@@ -47,8 +43,7 @@ sensor:
     icon: "mdi:wind-power"
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} supply temperature"
-    id: "${prefix}_supply_temperature"
+    name: "${friendly_prefix} inlet temperature"
     register_type: read
     address: 4036
     value_type: S_WORD
@@ -59,8 +54,7 @@ sensor:
       - multiply: .1
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} supply humidity"
-    id: "${prefix}_supply_humidity"
+    name: "${friendly_prefix} inlet humidity"
     register_type: read
     address: 4037
     value_type: U_WORD
@@ -72,7 +66,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust flow"
-    id: "${prefix}_exhaust_flow"
     register_type: read
     address: 4042
     value_type: U_WORD
@@ -82,7 +75,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust fan"
-    id: "${prefix}_exhaust_fan"
     register_type: read
     address: 4044
     value_type: U_WORD
@@ -92,7 +84,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust temperature"
-    id: "${prefix}_exhaust_temperature"
     register_type: read
     address: 4046
     value_type: S_WORD
@@ -104,7 +95,6 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust humidity"
-    id: "${prefix}_exhaust_humidity"
     register_type: read
     address: 4047
     value_type: U_WORD
@@ -123,63 +113,137 @@ text_sensor:
     address: 4000
     register_count: 3
     response_size: 24
-    raw_encode: COMMA
+    raw_encode: HEXBYTES
     entity_category: DIAGNOSTIC
     skip_updates: 720
-    disabled_by_default: true
     icon: "mdi:qrcode"
+    lambda: |-
+      char device_type = modbus_controller::byte_from_hex_str(x, 0);
+      uint8_t major = modbus_controller::byte_from_hex_str(x, 1);
+      uint8_t minor = modbus_controller::byte_from_hex_str(x, 2);
+      uint8_t fix = modbus_controller::byte_from_hex_str(x, 3);
+      uint16_t build = modbus_controller::word_from_hex_str(x, 4);
+      return str_sprintf("%c%d.%d.%d.%d", device_type, major, minor, fix, build);
+    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} hardware version"
-    id: "${prefix}_hardware_version"
     register_type: read
     address: 4003
     register_count: 1
     response_size: 8
-    raw_encode: COMMA
+    raw_encode: HEXBYTES
     entity_category: DIAGNOSTIC
     skip_updates: 720
-    disabled_by_default: true
     icon: "mdi:qrcode"
+    lambda: |-
+      uint8_t major = modbus_controller::byte_from_hex_str(x, 0);
+      uint8_t minor = modbus_controller::byte_from_hex_str(x, 1);
+      return str_sprintf("H%d.%d", major, minor);
+    disabled_by_default: true
+
+  # [E][modbus_controller:094]: Modbus error function code: 0x4 exception: 2
+  # [E][modbus_controller:103]: Modbus error - last command: function code=0x4  register address = 0xFAD  registers count=6 payload size=0
+  #- platform: modbus_controller
+  #  modbus_controller_id: "${prefix}_modbus"
+  #  name: "${friendly_prefix} serial number"
+  #  register_type: read
+  #  address: 4013
+  #  register_count: 6
+  #  response_size: 48
+  #  raw_encode: ANSI
+  #  entity_category: DIAGNOSTIC
+  #  skip_updates: 720
+  #  disabled_by_default: true
+  #  icon: "mdi:qrcode"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} serial number"
-    id: "${prefix}_serial_no"
+    name: "${friendly_prefix} fan control mode"
     register_type: read
-    address: 4013
-    register_count: 6
-    response_size: 48
-    raw_encode: NONE
+    address: 4021
     entity_category: DIAGNOSTIC
-    skip_updates: 720
-    disabled_by_default: true
-    icon: "mdi:qrcode"
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} status"
-    id: "${prefix}_status"
-    register_type: read
-    address: 4800
-    entity_category: DIAGNOSTIC
-    icon: mdi:alert
+    #icon: mdi:alert
     lambda: !lambda |-
       uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
-      ESP_LOGD("main","Found device status int : %d", int_mode);
+      ESP_LOGD("main","Found fan control mode: %d", int_mode);
       std::string mode_str;
       switch (int_mode) {
-        case 0:  mode_str = "good"; break;
-        case 1:  mode_str = "warning"; break;
-        case 2:  mode_str = "non blocking error"; break;
-        case 3:  mode_str = "blocking error"; break;
+        case 0:  mode_str = "initializing"; break;
+        case 1:  mode_str = "constant flow"; break;
+        case 2:  mode_str = "constant PWM"; break;
+        case 3:  mode_str = "off"; break;
+        case 4:  mode_str = "error"; break;
+        case 5:  mode_str = "massbalance"; break;
+        case 6:  mode_str = "standby"; break;
         default: mode_str = to_string(int_mode); break;
       }
       return mode_str;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} bypass status"
+    register_type: read
+    address: 4050
+    entity_category: DIAGNOSTIC
+    icon: mdi:transit-skip
+    lambda: !lambda |-
+      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
+      ESP_LOGD("main","Found bypass status: %d", int_mode);
+      std::string mode_str;
+      switch (int_mode) {
+        case 0:  mode_str = "initializing"; break;
+        case 1:  mode_str = "opening"; break;
+        case 2:  mode_str = "closing"; break;
+        case 3:  mode_str = "open"; break;
+        case 4:  mode_str = "closed"; break;
+        default: mode_str = to_string(int_mode); break;
+      }
+      return mode_str;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset value"
+    register_type: read
+    address: 4080
+    entity_category: DIAGNOSTIC
+    icon: mdi:fan
+    lambda: !lambda |-
+      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
+      std::string mode_str;
+      switch (int_mode) {
+        case 0:  mode_str = "preset 0"; break;
+        case 1:  mode_str = "preset 1"; break;
+        case 2:  mode_str = "preset 2"; break;
+        case 3:  mode_str = "preset 3"; break;
+        case 255:  mode_str = "invalid position"; break;
+        default: mode_str = to_string(int_mode); break;
+      }
+      return mode_str;
+
+  ## Available from Software version S3.01.02 (basic PCB) and S2.02.05 (Plus PCB)
+  #- platform: modbus_controller
+  #  modbus_controller_id: "${prefix}_modbus"
+  #  name: "${friendly_prefix} status"
+  #  register_type: read
+  #  address: 4800
+  #  entity_category: DIAGNOSTIC
+  #  icon: mdi:alert
+  #  lambda: !lambda |-
+  #    uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
+  #    ESP_LOGD("main","Found device status int : %d", int_mode);
+  #    std::string mode_str;
+  #    switch (int_mode) {
+  #      case 0:  mode_str = "good"; break;
+  #      case 1:  mode_str = "warning"; break;
+  #      case 2:  mode_str = "non blocking error"; break;
+  #      case 3:  mode_str = "blocking error"; break;
+  #      default: mode_str = to_string(int_mode); break;
+  #    }
+  #    return mode_str;
 
 switch:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} imbalance allowed"
-    id: "${prefix}_imbalance_allowed"
     register_type: holding
     address: 6033
     entity_category: CONFIG
@@ -187,28 +251,67 @@ switch:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} on/off"
-    id: "${prefix}_on_off"
     register_type: holding
     address: 8003
     inverted: true
     icon: "mdi:power-standby"
-
-select:
+    entity_category: CONFIG
+    # Write:
+    # 1: Set appliance in standby
+    # 2: Set appliance in normal mode
+    # Read:
+    # 0: Standby not active
+    # 1: Standby active
+    write_lambda: |-
+      ESP_LOGD("main","Writing power mode: %f", x);
+      return {};  // do not do anything (should return appropriate payload)
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} flow type"
-    id: "${prefix}_flow_type"
+    name: "${friendly_prefix} reset filter warning"
+    icon: mdi:air-filter
+    register_type: holding
+    address: 8010
+    entity_category: CONFIG
+
+select:
+  # This defines the default position of the 4-position switch. This will be the
+  # position set if no switch is connected.
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} default flow preset"
+    icon: mdi:fan
+    address: 6031
+    value_type: U_WORD
+    optionsmap:
+      "preset 0": 0  # holiday
+      "preset 1": 1  # low
+      "preset 2": 2  # normal
+      "preset 3": 3  # high
+    entity_category: CONFIG
+    disabled_by_default: true
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow mode"
+    icon: mdi:car-cruise-control
     address: 6030
     value_type: U_WORD
     optionsmap:
-      "Constant pulse width modulation": 1
-      "Constant flow": 2
-      "Constant mass flow": 3
+      "constant PWM": 0
+      "constant flow": 1  # default
+      "constant mass flow": 2
     entity_category: CONFIG
+    #set_action:
+    #  - lambda: |-
+    #      auto setpoint = id(${prefix}_flow_setpoint);
+    #      if (x == 2) {
+    #      } else {
+    #      }
+    #      auto call = setpoint->make_call();
+    #      call.set_value(state);
+    #      call.perform();
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} bypass"
-    id: "${prefix}_bypass"
     address: 6100
     value_type: U_WORD
     optionsmap:
@@ -217,15 +320,133 @@ select:
       "open": 2
     entity_category: CONFIG
     icon: "mdi:transit-skip"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} control mode"
+    address: 8000
+    value_type: U_WORD
+    # With selection 2 it is not possible to use a control unit, humidity sensor
+    # or multiple switch in combination with a Brink interface on the Brink HRA
+    # device.
+    optionsmap:
+      "off": 0  # Modbus control switched off
+      "preset": 1  # Modbus control switch
+      "flow rate": 2  # Modbus control flow rate value
+    entity_category: CONFIG
+    icon: "mdi:car-cruise-control"
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset"
+    icon: mdi:fan
+    id: "${prefix}_flow_preset"
+    address: 8001
+    value_type: U_WORD
+    optionsmap:
+      "preset 0": 0  # holiday
+      "preset 1": 1  # low
+      "preset 2": 2  # normal
+      "preset 3": 3  # high
 
 number:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset 0"
+    id: "${prefix}_flow_preset0"
+    address: 6000
+    value_type: U_WORD
+    entity_category: CONFIG
+    mode: box  # one of: box/slider
+    min_value: 50
+    max_value: 400
+    step: 5
+    icon: "mdi:fan-remove"
+    write_lambda: |-
+      auto next = id(${prefix}_flow_preset1);
+      int next_state = (int)next->state;
+      if (x > next_state) {
+        return next_state;
+      }
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset 1"
+    id: "${prefix}_flow_preset1"
+    address: 6001
+    value_type: U_WORD
+    entity_category: CONFIG
+    mode: box  # one of: box/slider
+    min_value: 50
+    max_value: 400
+    step: 5
+    icon: "mdi:fan-speed-1"
+    write_lambda: |-
+      auto previous = id(${prefix}_flow_preset0);
+      int prev_state = (int)previous->state;
+      if (x < prev_state) {
+        return prev_state;
+      }
+
+      auto next = id(${prefix}_flow_preset2);
+      int next_state = (int)next->state;
+      if (x > next_state) {
+        return next_state;
+      }
+
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset 2"
+    id: "${prefix}_flow_preset2"
+    address: 6002
+    value_type: U_WORD
+    entity_category: CONFIG
+    mode: box  # one of: box/slider
+    min_value: 50
+    max_value: 400
+    step: 150
+    icon: "mdi:fan-speed-2"
+    write_lambda: |-
+      auto previous = id(${prefix}_flow_preset1);
+      int prev_state = (int)previous->state;
+      if (x < prev_state) {
+        return prev_state;
+      }
+
+      auto next = id(${prefix}_flow_preset3);
+      int next_state = (int)next->state;
+      if (x > next_state) {
+        return next_state;
+      }
+
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset 3"
+    id: "${prefix}_flow_preset3"
+    address: 6003
+    value_type: U_WORD
+    entity_category: CONFIG
+    mode: box  # one of: box/slider
+    min_value: 50
+    max_value: 400
+    step: 5
+    icon: "mdi:fan-speed-3"
+    write_lambda: |-
+      auto previous = id(${prefix}_flow_preset2);
+      int prev_state = (int)previous->state;
+      if (x < prev_state) {
+        return prev_state;
+      }
+
+      return x;
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow setpoint"
     id: "${prefix}_flow_setpoint"
     address: 8002
     value_type: U_WORD
-    min_value: 0
+    mode: slider  # one of: box/slider
+    min_value: 50
     max_value: 400
     step: 1
     icon: "mdi:weather-windy"
