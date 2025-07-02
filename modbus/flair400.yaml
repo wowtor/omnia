@@ -1,3 +1,13 @@
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} filter warning"
+    id: "${prefix}_filter_warning"
+    register_type: read
+    address: 4100
+    entity_category: DIAGNOSTIC
+    icon: mdi:alert
+
 sensor:
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
@@ -11,6 +21,7 @@ sensor:
     filters:
       - multiply: .1
     entity_category: DIAGNOSTIC
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust pressure"
@@ -23,6 +34,7 @@ sensor:
     filters:
       - multiply: .1
     entity_category: DIAGNOSTIC
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} inlet flow"
@@ -32,6 +44,7 @@ sensor:
     unit_of_measurement: "m3/h"
     entity_category: DIAGNOSTIC
     icon: "mdi:weather-windy"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} inlet fan"
@@ -41,6 +54,7 @@ sensor:
     unit_of_measurement: "rpm"
     entity_category: DIAGNOSTIC
     icon: "mdi:wind-power"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} inlet temperature"
@@ -52,6 +66,7 @@ sensor:
     entity_category: DIAGNOSTIC
     filters:
       - multiply: .1
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} inlet humidity"
@@ -63,6 +78,7 @@ sensor:
     device_class: HUMIDITY
     filters:
       - multiply: .1
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust flow"
@@ -72,6 +88,7 @@ sensor:
     unit_of_measurement: "m3/h"
     entity_category: DIAGNOSTIC
     icon: "mdi:weather-windy"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust fan"
@@ -81,6 +98,7 @@ sensor:
     unit_of_measurement: "rpm"
     entity_category: DIAGNOSTIC
     icon: "mdi:wind-power"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust temperature"
@@ -92,6 +110,7 @@ sensor:
     entity_category: DIAGNOSTIC
     filters:
       - multiply: .1
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} exhaust humidity"
@@ -103,6 +122,66 @@ sensor:
     device_class: HUMIDITY
     filters:
       - multiply: .1
+
+  # 0: holiday
+  # 1: low
+  # 2: normal
+  # 3: high
+  # 255: invalid position
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset value"
+    register_type: read
+    address: 4080
+    value_type: U_WORD
+    entity_category: DIAGNOSTIC
+    icon: mdi:fan
+
+  # Operating time in hours
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} operating hours"
+    register_type: read
+    address: 4113
+    value_type: U_DWORD
+    unit_of_measurement: hours
+    entity_category: DIAGNOSTIC
+    icon: mdi:clock
+
+  # Number of hours the appliance is on since last filter reset.
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} filter operating hours"
+    register_type: read
+    address: 4115
+    value_type: U_WORD
+    unit_of_measurement: hours
+    entity_category: DIAGNOSTIC
+    icon: mdi:clock
+
+  ## Amount of flow in units of m3/h since last filter reset
+  #- platform: modbus_controller
+  #  modbus_controller_id: "${prefix}_modbus"
+  #  name: "${friendly_prefix} filter operating volume"
+  #  register_type: read
+  #  address: 4116
+  #  value_type: U_DWORD
+  #  unit_of_measurement: "m3"
+  #  state_class: total
+  #  entity_category: DIAGNOSTIC
+  #  icon: mdi:air-filter
+
+  ## Amount of flow in units of m3/h since putting into use.
+  #- platform: modbus_controller
+  #  modbus_controller_id: "${prefix}_modbus"
+  #  name: "${friendly_prefix} operating volume"
+  #  register_type: read
+  #  address: 4118
+  #  value_type: U_DWORD
+  #  unit_of_measurement: "m3"
+  #  state_class: total
+  #  entity_category: DIAGNOSTIC
+  #  icon: mdi:air-filter
 
 text_sensor:
   - platform: modbus_controller
@@ -125,6 +204,7 @@ text_sensor:
       uint16_t build = modbus_controller::word_from_hex_str(x, 4);
       return str_sprintf("%c%d.%d.%d.%d", device_type, major, minor, fix, build);
     disabled_by_default: true
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} hardware version"
@@ -179,6 +259,7 @@ text_sensor:
         default: mode_str = to_string(int_mode); break;
       }
       return mode_str;
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} bypass status"
@@ -196,25 +277,6 @@ text_sensor:
         case 2:  mode_str = "closing"; break;
         case 3:  mode_str = "open"; break;
         case 4:  mode_str = "closed"; break;
-        default: mode_str = to_string(int_mode); break;
-      }
-      return mode_str;
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} flow preset value"
-    register_type: read
-    address: 4080
-    entity_category: DIAGNOSTIC
-    icon: mdi:fan
-    lambda: !lambda |-
-      uint16_t int_mode = (data[item->offset] << 8) + data[item->offset+1];
-      std::string mode_str;
-      switch (int_mode) {
-        case 0:  mode_str = "preset 0"; break;
-        case 1:  mode_str = "preset 1"; break;
-        case 2:  mode_str = "preset 2"; break;
-        case 3:  mode_str = "preset 3"; break;
-        case 255:  mode_str = "invalid position"; break;
         default: mode_str = to_string(int_mode); break;
       }
       return mode_str;
@@ -248,6 +310,7 @@ switch:
     address: 6033
     entity_category: CONFIG
     icon: "mdi:scale-unbalanced"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} on/off"
@@ -265,30 +328,16 @@ switch:
     write_lambda: |-
       ESP_LOGD("main","Writing power mode: %f", x);
       return {};  // do not do anything (should return appropriate payload)
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} reset filter warning"
+    name: "${friendly_prefix} filter warning reset"
     icon: mdi:air-filter
     register_type: holding
     address: 8010
     entity_category: CONFIG
 
 select:
-  # This defines the default position of the 4-position switch. This will be the
-  # position set if no switch is connected.
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} default flow preset"
-    icon: mdi:fan
-    address: 6031
-    value_type: U_WORD
-    optionsmap:
-      "preset 0": 0  # holiday
-      "preset 1": 1  # low
-      "preset 2": 2  # normal
-      "preset 3": 3  # high
-    entity_category: CONFIG
-    disabled_by_default: true
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow mode"
@@ -309,6 +358,7 @@ select:
     #      auto call = setpoint->make_call();
     #      call.set_value(state);
     #      call.perform();
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} bypass"
@@ -320,6 +370,7 @@ select:
       "open": 2
     entity_category: CONFIG
     icon: "mdi:transit-skip"
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} control mode"
@@ -334,18 +385,6 @@ select:
       "flow rate": 2  # Modbus control flow rate value
     entity_category: CONFIG
     icon: "mdi:car-cruise-control"
-  - platform: modbus_controller
-    modbus_controller_id: "${prefix}_modbus"
-    name: "${friendly_prefix} flow preset"
-    icon: mdi:fan
-    id: "${prefix}_flow_preset"
-    address: 8001
-    value_type: U_WORD
-    optionsmap:
-      "preset 0": 0  # holiday
-      "preset 1": 1  # low
-      "preset 2": 2  # normal
-      "preset 3": 3  # high
 
 number:
   - platform: modbus_controller
@@ -367,6 +406,7 @@ number:
         return next_state;
       }
       return x;
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow preset 1"
@@ -393,6 +433,7 @@ number:
       }
 
       return x;
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow preset 2"
@@ -419,6 +460,7 @@ number:
       }
 
       return x;
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow preset 3"
@@ -439,6 +481,46 @@ number:
       }
 
       return x;
+
+  # Days before filter warning
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} filter warning days"
+    address: 6120
+    value_type: U_WORD
+    entity_category: CONFIG
+    mode: slider  # one of: box/slider
+    min_value: 1
+    max_value: 365
+    step: 1
+    icon: "mdi:fan-clock"
+
+  # This defines the default position of the 4-position switch. This will be the
+  # position set if no switch is connected.
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} default flow preset"
+    icon: mdi:fan
+    address: 6031
+    value_type: U_WORD
+    entity_category: CONFIG
+    min_value: 0
+    max_value: 3
+    step: 1
+    disabled_by_default: true
+
+  - platform: modbus_controller
+    modbus_controller_id: "${prefix}_modbus"
+    name: "${friendly_prefix} flow preset"
+    icon: mdi:weather-windy
+    id: "${prefix}_flow_preset"
+    address: 8001
+    value_type: U_WORD
+    mode: slider  # one of: box/slider
+    min_value: 0
+    max_value: 3
+    step: 1
+
   - platform: modbus_controller
     modbus_controller_id: "${prefix}_modbus"
     name: "${friendly_prefix} flow setpoint"
